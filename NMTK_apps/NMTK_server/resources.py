@@ -5,11 +5,15 @@ from tastypie.resources import *
 from tastypie.resources import Resource as TastyPieResource
 from tastypie.resources import ModelResource as TastyPieModelResource
 from django.utils import timezone
+from serializers import NMTKSerializer
 import logging
 logger = logging.getLogger(__name__)
 
 
 class ModelResource(TastyPieModelResource):
+
+    class Meta:
+        serializer = NMTKSerializer
 
     def pre_save(self, bundle):
         return bundle

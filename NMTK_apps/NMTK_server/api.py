@@ -171,7 +171,7 @@ class UserResource(ModelResource):
     date_joined = fields.DateTimeField('date_joined', readonly=True)
     last_login = fields.DateTimeField('last_login', readonly=True)
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = User.objects.filter(is_active=True)
         results_name = 'user'
         always_return_data = True
@@ -365,7 +365,7 @@ class FeedbackResourceAuthorization(Authorization):
 class FeedbackResource(ModelResource):
     user = fields.ToOneField(UserResource, 'user', blank=True)
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.Feedback.objects.all()
         authorization = FeedbackResourceAuthorization()
         always_return_data = True
@@ -454,7 +454,7 @@ class UserPreferenceAuthorization(Authorization):
 
 class UserPreference(ModelResource):
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.UserPreference.objects.all()
         authorization = UserPreferenceAuthorization()
         always_return_data = True
@@ -770,7 +770,7 @@ class DataFileResource(ModelResource):
                                            os.path.basename(rec.file.name)))
         return response
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.DataFile.objects.filter(deleted=False)
         authorization = DataFileResourceAuthorization()
         always_return_data = True
@@ -903,7 +903,7 @@ class ToolResource(ModelResource):
     config = fields.CharField(readonly=True, null=True,
                               help_text='Tool Configuration (as JSON)')
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.Tool.objects.prefetch_related(
             'authorized_users').filter(active=True)
         resource_name = 'tool'
@@ -921,7 +921,7 @@ class ToolResource(ModelResource):
 
 class MapColorStyleResource(ModelResource):
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.MapColorStyle.objects.all()
         resource_name = 'color_style'
         always_return_data = True
@@ -1000,7 +1000,7 @@ class MapColorStyleResource(ModelResource):
 class ToolSampleFileResource(ModelResource):
     tool = fields.ToOneField(ToolResource, 'tool')
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.ToolSampleFile.objects.filter(tool__active=True)
         resource_name = 'tool_sample_file'
         always_return_data = True
@@ -1260,7 +1260,7 @@ class JobResource(ModelResource):
         '''
         pass
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.Job.objects.select_related().all()
         authorization = JobResourceAuthorization()
         validation = JobResourceValidation()
@@ -1363,7 +1363,7 @@ class ResultsFileResource(ModelResource):
     datafile = fields.ToOneField(DataFileResource, 'datafile')
     primary = fields.BooleanField('primary', readonly=True)
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.ResultsFile.objects.all()
         authorization = ResultsFileResourceAuthorization()
         always_return_data = True
@@ -1433,7 +1433,7 @@ class JobFileResource(ModelResource):
     datafile = fields.ToOneField(DataFileResource, 'datafile')
     namespace = fields.CharField('namespace', readonly=True)
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.JobFile.objects.all()
         authorization = JobFileResourceAuthorization()
         always_return_data = True
@@ -1490,7 +1490,7 @@ class JobStatusResource(ModelResource):
         bundle.data['category'] = bundle.obj.get_category_display()
         return bundle
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.JobStatus.objects.all()
         always_return_data = True
         authorization = JobStatusResourceAuthorization()
@@ -1504,7 +1504,7 @@ class JobStatusResource(ModelResource):
 
 class PageNameResource(ModelResource):
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.PageName.objects.all()
         resource_name = 'page_name'
         always_return_data = True
@@ -1515,7 +1515,7 @@ class PageContentResource(ModelResource):
 
     page = fields.ToOneField(PageNameResource, 'page')
 
-    class Meta:
+    class Meta(ModelResource.Meta):
         queryset = models.PageContent.objects.filter(enabled=True)
         resource_name = 'page_content'
         always_return_data = True

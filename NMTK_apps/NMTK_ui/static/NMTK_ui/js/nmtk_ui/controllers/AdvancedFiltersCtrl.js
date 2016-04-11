@@ -176,5 +176,6 @@ define(['underscore'], function (_) {
 
 		}			
 	];
+	controller.name='advancedFiltersCtrl';
 	return controller;
 });
