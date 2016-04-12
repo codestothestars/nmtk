@@ -12,4 +12,4 @@ class NMTKSerializer(Serializer):
         This allows the browser/Angular to auto-translate the 
         times properly into the users timezone.
         '''
-        return time.astimezone(pytz.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return data.astimezone(pytz.utc).strftime("%Y-%m-%dT%H:%M:%SZ")

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class ModelResource(TastyPieModelResource):
 
     class Meta:
-        serializer = NMTKSerializer
+        serializer = NMTKSerializer()
 
     def pre_save(self, bundle):
         return bundle
