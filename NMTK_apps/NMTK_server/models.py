@@ -10,6 +10,7 @@ import hashlib
 from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import cStringIO as StringIO
+import shutil
 from django.db import connections, transaction
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -350,6 +351,17 @@ class ToolSampleFile(models.Model):
     checksum = models.CharField(max_length=50, null=False)
     content_type = models.CharField(max_length=64, null=True)
     objects = models.GeoManager()
+
+    def __init__(self, *args, **kwargs):
+        super(ToolSampleFile, self).__init__(*args, **kwargs)
+        self._old_file_path = self.file.path if self.file else None
+
+    def save(self, *args, **kwargs):
+        super(ToolSampleFile, self).save(*args, **kwargs)
+        if self._old_file_path:
+            new_path = self.file.path if self.file else None
+            if new_path != self._old_file_path:
+                os.unlink(self._old_file_path)
 
     class Meta:
         verbose_name = 'Tool Sample File'
@@ -709,14 +721,14 @@ class DataFile(models.Model):
         Ensure files are deleted when the model instance is removed.
         '''
         delete_candidates = []
-        delete_fields = ['processed_file', 'file',
-                         'mapfile', 'legendgraphic']
+        delete_fields = ['processed_file', 'file', ]
         # we run into import issues.
         connection = delete_sql = None
         # If we are using PostGIS we need to also delete the table from the
         # database.
 
         delete_fields.append('model')
+
         connection = connections['default']
         delete_sql = '''drop table if exists userdata_results_{0};'''.format(
             self.pk)
@@ -730,10 +742,12 @@ class DataFile(models.Model):
             except Exception as e:
                 logger.exception('Failed to process delete for %s (%s)',
                                  field, self.pk)
+        mapfiles_dir = self.mapfile_path
         r = super(DataFile, self).delete()
         for f in delete_candidates:
             if os.path.exists(f):
                 os.unlink(f)
+        shutil.rmtree(mapfiles_dir)
         ''' Drop the PostgreSQL table '''
         if delete_sql:
             cursor = connection.cursor()
@@ -863,6 +877,26 @@ class MapColorStyle(models.Model):
     ramp_graphic = models.ImageField(storage=fs,
                                      upload_to=color_ramp_graphic_path,
                                      null=True, blank=True)
+
+    def delete(self):
+        '''
+        Ensure files are deleted when the model instance is removed.
+        '''
+        delete_fields = ['ramp_graphic', ]
+
+        for field in delete_fields:
+            try:
+                if getattr(self, field, None):
+                    delete_candidates.append(getattr(self, field).path)
+            except Exception as e:
+                logger.exception('Failed to process delete for %s (%s)',
+                                 field, self.pk,
+                                 exc_info=logging.isEnabledFor(logging.DEBUG))
+        r = super(MapColorStyle, self).delete()
+        for f in delete_candidates:
+            if os.path.exists(f):
+                os.unlink(f)
+        return r
 
     def ramp_graphic_tag(self):
         '''

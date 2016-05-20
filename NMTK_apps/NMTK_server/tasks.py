@@ -24,6 +24,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.commands import inspectdb
+import django.apps
 from django.template.loader import render_to_string
 from django.core.mail import send_mail, EmailMessage
 from django.core.files.base import ContentFile
@@ -544,6 +545,39 @@ def cleanup_mapfiles():
     for m in models.DataFile.objects.all():
         for filename in glob.glob(os.path.join(m.mapfile_path, '*.map')):
             os.unlink(filename)
+
+
+@task(ignore_result=False)
+def cleanup(dryrun=True):
+    '''
+    Cleanup unreferenced files from various locations...
+    '''
+    expected_files = []
+    from NMTK_server import models
+    for this_model in django.apps.apps.get_models():
+        rows = this_model.objects.all()
+        for field in this_model._meta.get_fields():
+            if isinstance(field, django_model_fields.files.FileField):
+                for row in rows:
+                    v = getattr(row, field.name)
+                    if v:
+                        expected_files.append(v.path)
+                        logger.debug('Added expected file: %s', v.path)
+                        if v.path.endswith('.py'):
+                            expected_files.append('{}c'.format(v.path))
+                            logger.debug('Added expected file: %sc', v.path)
+    unexpected_files = []
+    for dir, subdirs, files in os.walk(models.NMTKDataFileSystemStorage.base_location):
+        for filen in files:
+            target_file = os.path.join(dir, filen)
+            if target_file not in expected_files:
+                unexpected_files.append(target_file)
+                logger.debug(
+                    'Encountered unexpected file: %s', target_file)
+
+    if not dryrun:
+        [os.unlink(f) for f in unexpected_files]
+    return unexpected_files
 
 
 @task(ignore_result=False)
