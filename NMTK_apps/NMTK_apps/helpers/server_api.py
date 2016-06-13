@@ -104,6 +104,7 @@ class NMTKClient(object):
         return r.json()
 
     def updateResults(self, result_field=None, result_file=None, units=None,
+                      field_order=None,
                       files={}, failure=False, payload={}):
         '''
         There are two methods the analysis tool uses to communicate with the
@@ -121,6 +122,7 @@ class NMTKClient(object):
         else:
             payload['status'] = 'results'
             payload['results'] = {'field': result_field,
+                                  'field_order': field_order,
                                   'file': result_file,
                                   'units': units}
 
