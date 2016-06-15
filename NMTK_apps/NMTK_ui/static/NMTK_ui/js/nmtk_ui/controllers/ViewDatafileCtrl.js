@@ -107,6 +107,35 @@ define([  'angular'
 				$scope.gridOptions.ngGrid.$viewport.scrollTop(0);
 			}
 			
+			
+			$scope.zoomToExtent=function (features) {
+				// Zoom to extent of map when the user hits the globe button.
+				if (features) {
+					zoomToSelectedDataExtent(features);
+				} else {
+					leafletData.getMap().then(function(map) {
+				        map.fitBounds(getBounds($scope.datafile_api.bbox));
+					});
+				}
+				
+			}
+			var zoomToSelectedDataExtent=function(features){
+				if ($scope.datafile_api) {
+					var options={format: 'extent',
+								 nmtk_id__in: _.map(features, function (feature) { 
+												 	return feature.nmtk_id; 
+												 }).join(',')
+							     };
+					
+					$log.info('Making request for ', $scope.datafile_api.download_url, options);
+					$http.get($scope.datafile_api.download_url, {params: options}).success(function (data) {
+						leafletData.getMap().then(function(map) {
+					        map.fitBounds(getBounds(data.extent));
+						});
+					});
+				};
+			};
+			
 			$scope.changeColors=function () {
 				var opts = {
 					    template:  ColorRampSelectionTemplate, // OR: templateUrl: 'path/to/view.html',
@@ -254,6 +283,10 @@ define([  'angular'
 						                 $scope.filterOptions.filterText,$scope.sort_field);
 			});
 		            				
+			
+			
+			
+			
 			
 			$scope.getPagedDataAsync=function(pageSize, offset, searchText, order){
 				$scope.paging_offset=offset;

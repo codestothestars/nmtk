@@ -727,7 +727,12 @@ class DataFileResource(ModelResource):
                 # requires lat, lon, zoom and (optionally) pixels GET
                 # parameters
                 return data_output.data_query(request, rec)
-
+            elif format == 'extent':
+                return data_output.extent_output(
+                    request, rec,
+                    # In this case we expect to get a querystring that
+                    # restricts the output to a set of nmtk_ids
+                    request.GET.get('nmtk_id__in', '').split(','))
             else:
                 return HttpResponse(
                     'The format %s is not supported' %

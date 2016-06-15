@@ -7,6 +7,7 @@ from django.http import HttpResponse
 import json
 from django.db.models import Q
 from django.contrib.gis.geos import Polygon, Point
+from django.contrib.gis.db.models import Extent
 import math
 import logging
 from functools import reduce
@@ -305,6 +306,19 @@ def pager_output(request, datafile):
                 if col != 'nmtk_geometry':
                     data[db_col] = getattr(row, col)
             result['data'].append(data)
+
+    return HttpResponse(
+        json.dumps(
+            result,
+            default=json_custom_serializer),
+        content_type='application/json')
+
+
+def extent_output(request, datafile, ids):
+    qs = getQuerySet(datafile)
+    qs = qs.filter(nmtk_id__in=ids).aggregate(Extent('nmtk_geometry'))
+
+    result = {'extent': qs['nmtk_geometry__extent']}
 
     return HttpResponse(
         json.dumps(

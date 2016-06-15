@@ -115,6 +115,8 @@
           <div class="widget-header">
             <span class="glyphicon glyphicon-map-marker"></span>
             <h1>Spatial {{data_file_tab_name}}</h1>
+            <button class="navbar-right btn btn-xs btn-default ic-right" 
+                    tooltip="Zoom to extent of data" ng-click="zoomToExtent()"><i class="glyphicon glyphicon-globe"></i></button>
             <button class="navbar-right btn btn-xs btn-primary ic-right" 
                     ng-click="changeColors()">Change Colors</button>
 	            
@@ -167,6 +169,8 @@
             <span class="glyphicon glyphicon-plus-sign"></span>
             <h1>{{selected_features.length}} Selected Features</h1>
             <button class="navbar-right btn btn-xs btn-primary ic-right" ng-click="clearSelection()" ng-show="selected_features.length">Clear Selection</button>
+          	<button ng-show="spatial && selected_features.length" class="navbar-right btn btn-xs btn-default ic-right" 
+                    tooltip="Zoom to extent of selected features" ng-click="zoomToExtent(selected_features)"><i class="glyphicon glyphicon-globe"></i></button>
           </div> <!-- /widget-header -->
           <div ng-show="selected_features.length" class="widget-content">  
             <div ng-show="selected_features.length" style="height: 200px; overflow: hidden;" class="gridStyle" ng-grid="gridOptions2"></div>
