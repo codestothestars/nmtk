@@ -183,6 +183,13 @@ class PageNameAdmin(admin.ModelAdmin):
     list_display = ['pk', 'name']
 
 
+class ToolSampleFileAdmin(admin.ModelAdmin):
+    list_display = ['tool__name', 'namespace']
+
+    def tool__name(self, obj):
+        return obj.tool.name
+
+
 class DataFileAdmin(admin.ModelAdmin):
     #    def data_file(self, obj):
     #        '''
@@ -253,7 +260,7 @@ admin.site.register(models.Tool, ToolAdmin)
 admin.site.register(models.Job, JobAdmin)
 admin.site.register(models.JobStatus, JobStatusAdmin)
 admin.site.register(models.DataFile, DataFileAdmin)
-admin.site.register(models.ToolSampleFile, admin.ModelAdmin)
+admin.site.register(models.ToolSampleFile, ToolSampleFileAdmin)
 admin.site.register(models.ToolSampleConfig, admin.ModelAdmin)
 admin.site.register(models.MapColorStyle, MapColorStyleAdmin)
 

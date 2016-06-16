@@ -62,7 +62,7 @@ geomodel_mappings = {
 
 # This actually does not get done as a task - it is inline with the
 # response from the tool server.
-def generate_datamodel(datafile, loader):
+def generate_datamodel(datafile, loader, logger):
     def propertymap(data):
         output = {}
         used = []
@@ -142,6 +142,9 @@ def generate_datamodel(datafile, loader):
                 model_content.append(
                     '''{0}db_table='userdata_results_{1}' '''.format(
                         ' ' * 8, datafile.pk))
+                model_content.append(
+                    '''{0}app_label='NMTK_server' '''.format(
+                        ' ' * 8,))
                 logger.error('working on saving the model datafile!')
                 datafile.model.save(
                     'model.py', ContentFile(
@@ -153,18 +156,22 @@ def generate_datamodel(datafile, loader):
                 Results_model = getattr(
                     user_models, 'Results_{0}'.format(
                         datafile.pk))
-
+                logger.debug('Loaded results model : %s', Results_model)
                 database = 'default'
                 # If using PostgreSQL, then just create the model and go...
                 dbtype = 'postgis'
                 connection = connections[database]
                 cursor = connection.cursor()
-                for statement in connection.creation.sql_create_model(
-                        Results_model, no_style())[0]:
-                    cursor.execute(statement)
-                for statement in connection.creation.sql_indexes_for_model(
-                        Results_model, no_style()):
-                    cursor.execute(statement)
+                with connection.schema_editor() as schema_editor:
+                    schema_editor.create_model(Results_model)
+#                 for statement in connection.creation.sql_create_model(
+#                         Results_model, no_style())[0]:
+#                     logger.info('Running statement %s', statement)
+#                     cursor.execute(statement)
+#                 for statement in connection.creation.sql_indexes_for_model(
+#                         Results_model, no_style()):
+#                     logger.info('Running statement %s', statement)
+#                     cursor.execute(statement)
 
             this_row = dict((field_map[k], v) for k, v in row.iteritems())
             if spatial:
@@ -439,6 +446,7 @@ def submitJob(job_id):
 @task(ignore_result=False)
 def updateToolConfig(tool):
     from NMTK_server import models
+    logger = updateToolConfig.get_logger()
     json_config = requests.get(
         tool.config_url, verify=tool.tool_server.verify_ssl)
     try:
@@ -552,6 +560,7 @@ def cleanup(dryrun=True):
     '''
     Cleanup unreferenced files from various locations...
     '''
+    logger = cleanup.get_logger()
     expected_files = []
     from NMTK_server import models
     for this_model in django.apps.apps.get_models():
@@ -583,6 +592,7 @@ def cleanup(dryrun=True):
 @task(ignore_result=False)
 def importDataFile(datafile, job_id=None):
     from NMTK_server import models
+    logger = importDataFile.get_logger()
     datafile.status_message = None
     job = None
     try:
@@ -604,7 +614,7 @@ def importDataFile(datafile, job_id=None):
                                 os.path.join(destination,
                                              os.path.basename(import_file)))
             logger.debug('Created a new file for %s', import_file)
-
+        logger.info('The file is spatial? %s', loader.is_spatial)
         if loader.is_spatial:
             datafile.srid = loader.info.srid
             datafile.srs = loader.info.srs
@@ -737,7 +747,12 @@ def importDataFile(datafile, job_id=None):
                 datafile.processed_file.save('{0}.{1}'.format(datafile.pk, suffix),
                                              ContentFile(''))
                 loader.export_json(datafile.processed_file.path)
-                generate_datamodel(datafile, loader)
+                try:
+                    generate_datamodel(datafile, loader, logger)
+                except Exception, e:
+                    logger.error('Error generating data model: %s', e,
+                                 exc_info=logger.isEnabledFor(logging.DEBUG))
+                    raise e
                 # Here we load the spatialite data using the model that was created
                 # by generate_datamodel.  We need to use this to get the range
                 # and type information for each field...
