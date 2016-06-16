@@ -20,4 +20,4 @@ def create_site(app, created_models, verbosity, **kwargs):
         site.domain = getattr(settings, 'SITE_DOMAIN', 'nmtk.otg-nc.com')
         site.save()
 
-signals.post_syncdb.connect(create_site, sender=models)
+signals.post_migrate.connect(create_site, sender=models)

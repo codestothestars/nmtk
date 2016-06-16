@@ -34,10 +34,16 @@ import requests
 import simplejson as json
 import logging
 import os
+import sys
 import time
 import urlparse
 import mimetypes
 logger = logging.getLogger(__name__)
+
+# For older version of python disable the urllib3 warnings.
+if sys.version_info < (2, 7, 9):
+    from requests.packages import urllib3
+    urllib3.disable_warnings()
 
 
 class NMTKClientException(Exception):
@@ -45,14 +51,13 @@ class NMTKClientException(Exception):
 
 
 class NMTKClient(object):
+
     '''
     A sample client that is both used to test the API, as well as for users and
     third parties that wish to interact with the API. It uses the python requests
     module, but should be fairly straightforward to implement in a number of
     different languages.
     '''
-    default_request_args = {'allow_redirects': False,
-                            'verify': False, }
 
     def getURL(self, named_url=None, path=None):
         '''
@@ -65,7 +70,7 @@ class NMTKClient(object):
         path.  Otherwise it is relative to base_url
         '''
         base_url = '/server/'
-        named_urls = {'login': 'login/',
+        named_urls = {'login': 'api/v1/user/login/',
                       'logout': 'logout/',
                       'api': 'api/v1/'}
         if path is not None and path.startswith('/'):
@@ -90,7 +95,9 @@ class NMTKClient(object):
         logger.debug('Returning requested URL: %s', url)
         return url
 
-    def __init__(self, site_url):
+    def __init__(self, site_url, verify_ssl=True):
+        self.verify_ssl = verify_ssl
+        logger.debug('Verify ssl is %s', verify_ssl)
         if site_url.endswith('/'):
             self.site_url = site_url[:-1]
         else:
@@ -99,20 +106,30 @@ class NMTKClient(object):
         self.base_url = urlparse.urlunparse(
             (parts[0], parts[1], '', '', '', ''))
         # Store a session so we can persist things.
+        self.default_request_args = {'allow_redirects': False,
+                                     'verify': verify_ssl}
         self.request = requests.Session()
+        self.request.headers.update({'referer': self.site_url})
+
+    def _update_args(self, kwargs):
+        default_args = self.default_request_args.copy()
+        default_args.update(kwargs)
+        return default_args
 
     def post(self, *args, **kwargs):
+        kwargs = self._update_args(kwargs)
         return self.request.post(*args, **kwargs)
 
     def put(self, *args, **kwargs):
+        kwargs = self._update_args(kwargs)
         return self.request.put(*args, **kwargs)
 
     def get(self, *args, **kwargs):
-        default_args = self.default_request_args.copy()
-        default_args.update(kwargs)
-        return self.request.get(*args, **default_args)
+        kwargs = self._update_args(kwargs)
+        return self.request.get(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
+        kwargs = self._update_args(kwargs)
         return self.request.delete(*args, **kwargs)
 
     def login(self, username, password):
@@ -120,14 +137,21 @@ class NMTKClient(object):
         Get a CSRF token and set it as a cookie so we can bypass CSRF
         protection checks that exist in the code.  Then log the user in.
         '''
-        self.request.get(self.getURL('login'))
-        csrf_token = self.request.cookies['csrftoken']
-        self.request.headers.update({'X-CSRFToken': csrf_token})
+#         self.get(self.getURL('logout'))
+#         csrf_token = self.request.cookies['csrftoken']
+#         logger.debug('CSRF token: %s', csrf_token)
+#         self.request.headers.update({'X-CSRFToken': csrf_token})
         # Now log in...
-        return self.request.post(self.getURL('login'), allow_redirects=False,
-                                 data={'username': username,
-                                       'password': password,
-                                       'next': self.getURL(path='')})
+
+        response = self.post(self.getURL('login'), allow_redirects=False,
+                             json={'username': username,
+                                   'password': password})
+        if 'csrftoken' in self.request.cookies:
+            csrf_token = self.request.cookies['csrftoken']
+            self.request.headers.update({'X-CSRFToken': csrf_token})
+        logger.debug(
+            'Cookies are %s', requests.utils.dict_from_cookiejar(self.request.cookies))
+        return response
 
     def uploadData(self, filename, description=None,
                    srid=None, timeout=None):
@@ -179,8 +203,8 @@ class NMTKClient(object):
         return url
 
     def logout(self):
-        return self.request.get(self.getURL('logout'),
-                                allow_redirects=False,)
+        return self.get(self.getURL('logout'),
+                        allow_redirects=False,)
 
     def create_user(self, username, password, **kwargs):
         '''
@@ -199,6 +223,7 @@ class NMTKClient(object):
             logger.debug('Response from user create was %s', response.text)
         # Status code of 201 means it got created.
         logger.debug('HTTP Result was %s', response.headers.get('location'))
+        exit(0)
         return response
 
 if __name__ == '__main__':

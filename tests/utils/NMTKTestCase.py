@@ -36,6 +36,7 @@ import logging
 import subprocess
 import string
 import random
+
 logger = logging.getLogger(__name__)
 
 
@@ -89,6 +90,10 @@ class NMTKTestCase(unittest.TestCase):
             return config
         raise Exception('No valid config found (tried both dynamic and static')
 
+    def getNMTKClient(self, *args, **kwargs):
+        return NMTKClient(self.site_url,
+                          verify_ssl=self.verify_ssl)
+
     def setUp(self):
         self.settings_command = os.path.join(nmtk_path,
                                              'NMTK_apps/manage.py')
@@ -99,7 +104,9 @@ class NMTKTestCase(unittest.TestCase):
         self.site_url = config['site_url']
         self.username = config['username']
         self.password = config['password']
-        self.client = NMTKClient(self.site_url)
+        self.verify_ssl = config['verify_ssl']
+        self.client = NMTKClient(self.site_url,
+                                 verify_ssl=self.verify_ssl)
         self.client.login(self.username, self.password)
         self.api_user_url = self.client.getURL('api', 'user/')
         self.api_file_url = self.client.getURL('api', 'datafile/')

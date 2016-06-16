@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from tastypie.authorization import Authorization
 from django.forms.models import model_to_dict
 from tastypie.utils import trailing_slash
-from django.core.servers.basehttp import FileWrapper
+from wsgiref.util import FileWrapper
 from django.core.exceptions import ObjectDoesNotExist
 from tastypie.resources import csrf_exempt
 from django.http import HttpResponse, Http404
@@ -51,7 +51,7 @@ class UserResourceValidation(Validation):
             if not bundle.data:
                 return {'__all__': 'Invalid Data'}
             if 'username' in bundle.data:
-                count = models.User.objects.filter(
+                count = User.objects.filter(
                     username=bundle.data['username']).count()
             if count > 0:
                 errors['username'] = 'Sorry, that username is not available'
@@ -173,11 +173,12 @@ class UserResource(ModelResource):
 
     class Meta(ModelResource.Meta):
         queryset = User.objects.filter(is_active=True)
-        results_name = 'user'
+        resource_name = 'user'
         always_return_data = True
         authentication = SessionAuthentication()
         authorization = UserResourceAuthorization()
         validation = UserResourceValidation()
+        allowed_methods = ['get', 'put', 'post']
         excludes = ('password', 'groups',)
         filtering = {'username': ALL,
                      'email': ALL}

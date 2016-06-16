@@ -5,7 +5,7 @@ from NMTK_server import models
 from NMTK_server.decorators import authentication
 from django.http import HttpResponse, Http404, HttpResponseRedirect, HttpResponseServerError
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
-from django.contrib.sites.models import get_current_site
+from django.contrib.sites.shortcuts import get_current_site
 import requests
 import json
 import os.path
@@ -14,7 +14,7 @@ import collections
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
 import tempfile
-from django.core.servers.basehttp import FileWrapper
+from wsgiref.util import FileWrapper
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout
 from django.utils import timezone

@@ -69,7 +69,7 @@ class TestFileUpload(NMTKTestCase):
         json_file = open(self.get_support_file('large_shapefile.zip'), 'r')
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getNMTKClient(self.site_url)
         client.login(username=username,
                      password=password)
         files = [('file', ('test1.json', json_file, 'application/json')), ]
@@ -102,7 +102,7 @@ class TestFileUpload(NMTKTestCase):
         json_file = open(self.get_support_file('odd_srid_shapefile.zip'), 'r')
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getNMTKClient(self.site_url)
         client.login(username=username,
                      password=password)
         files = [
@@ -137,7 +137,7 @@ class TestFileUpload(NMTKTestCase):
         json_file = open(self.get_support_file('odd_srid_shapefile.zip'), 'r')
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getNMTKClient(self.site_url)
         client.login(username=username,
                      password=password)
         files = [('file', ('shapefile.zip', json_file, 'application/zip')), ]
@@ -184,7 +184,7 @@ class TestFileUpload(NMTKTestCase):
         json_file = open(self.get_support_file('test1.geojson'), 'r')
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getNMTKClient(self.site_url)
         client.login(username=username,
                      password=password)
         files = [('file', ('test1.json', json_file, 'application/json')), ]
@@ -215,7 +215,7 @@ class TestFileUpload(NMTKTestCase):
         '''
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getNMTKClient(self.site_url)
         client.login(username=username,
                      password=password)
         description = 'Test upload file description'
@@ -237,7 +237,7 @@ class TestFileUpload(NMTKTestCase):
         '''
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getNMTKClient(self.site_url)
         client.login(username=username,
                      password=password)
         description = 'Test upload file description'

@@ -29,7 +29,6 @@
 # OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # Django settings for NMTK_apps project.
 import os
-import djcelery
 import socket
 import warnings
 import platform
@@ -50,7 +49,6 @@ warnings.filterwarnings(
     'ignore', r"'NoneType' object has no attribute 'finishGEOS_r'")
 warnings.filterwarnings(
     'ignore', r"'NoneType' object has no attribute 'destroy_geom'")
-djcelery.setup_loader()
 
 MANAGERS = ADMINS
 ALLOWED_HOSTS = [SITE_DOMAIN, '127.0.0.1']
@@ -174,7 +172,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'djcelery',
     'kombu.transport.django',
 )
 
@@ -231,7 +228,7 @@ LOGGING = {
     'handlers': {
         'null': {
             'level': 'DEBUG',
-            'class': 'django.utils.log.NullHandler',
+            'class': 'logging.NullHandler',
         },
         'debug': {
             'level': 'DEBUG',

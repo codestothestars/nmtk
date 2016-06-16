@@ -31,9 +31,10 @@ class Command(BaseCommand):
         user.is_superuser = True
         user.is_staff = True
         user.save()
-        site_url = 'http://%s' % (site_domain,)
+        site_url = 'http%s://%s' % ('s' if settings.SSL else '', site_domain,)
         config = {'username': username,
                   'password': password,
+                  'verify_ssl': not settings.SELF_SIGNED_SSL_CERT,
                   'site_url': site_url, }
         print "**NOTE: Configuration output appears on standard error"
         print >>sys.stderr, json.dumps(config)
