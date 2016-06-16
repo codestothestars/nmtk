@@ -511,6 +511,7 @@ def updateToolConfig(tool):
                                 t = mimetypes.guess_type(fconfig['uri'])[0]
                                 if t:
                                     m.content_type = t
+                            m.file_name = name
                             m.file.save(name, File(f))
                             objects_to_delete.append(m)
                         else:

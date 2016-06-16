@@ -185,6 +185,14 @@ class PageNameAdmin(admin.ModelAdmin):
 
 class ToolSampleFileAdmin(admin.ModelAdmin):
     list_display = ['tool__name', 'namespace']
+    readonly_fields = (
+        'tool',
+        'namespace',
+        'file',
+        'file_name',
+        'checksum',
+        'content_type',
+    )
 
     def tool__name(self, obj):
         return obj.tool.name

@@ -1041,7 +1041,7 @@ class ToolSampleFileResource(ModelResource):
                 '''
                 return HttpResponse('COMPLETE')
             else:
-                fn = os.path.basename(rec.file.name)
+                fn = rec.file_name
                 df = models.DataFile(
                     user=request.user,
                     description='Sample data for {0}'.format(

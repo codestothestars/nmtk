@@ -348,6 +348,7 @@ class ToolSampleFile(models.Model):
     namespace = models.CharField(max_length=32, null=False)
     file = models.FileField(
         storage=fs, upload_to=tool_sample_file_path)
+    file_name = models.CharField(max_length=50, null=True)
     checksum = models.CharField(max_length=50, null=False)
     content_type = models.CharField(max_length=64, null=True)
     objects = models.GeoManager()
@@ -357,6 +358,11 @@ class ToolSampleFile(models.Model):
         self._old_file_path = self.file.path if self.file else None
 
     def save(self, *args, **kwargs):
+        if not self.file_name and self.file.name:
+            name, ext = os.path.splitext(os.path.basename(self.file.name))
+            name = '{}{}'.format(
+                name.rsplit('_', 1)[0], '.{0}'.format(ext) if ext else '')
+            self.file_name = os.path.basename(name)
         super(ToolSampleFile, self).save(*args, **kwargs)
         if self._old_file_path:
             new_path = self.file.path if self.file else None
