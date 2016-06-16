@@ -92,6 +92,7 @@ TOOL_SERVER_URL=$(python manage.py query_settings --tool-server-url)
 
 echo "Applying any outstanding database migrations..."
 python manage.py migrate kombu_transport_django --fake-initial
+python manage.py migrate djcelery 0001 --fake
 python manage.py migrate --noinput
 echo "Restarting services..."
 sudo service apache2 restart

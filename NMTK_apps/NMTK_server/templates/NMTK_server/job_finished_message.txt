@@ -1,4 +1,4 @@
-{% load url from future %}{% load static %}{% load widget_tweaks %}
+{% load static %}{% load widget_tweaks %}
 You recently submitted a job using the NMTK server at http{% if request.is_secure %}s{% endif %}://{{site.domain}}{% url 'nmtk_server_nmtk_index' %}.
 
 We are pleased to report that your job was submitted to the "{{tool.name}}"

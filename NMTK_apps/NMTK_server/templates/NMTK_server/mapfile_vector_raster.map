@@ -1,4 +1,4 @@
-{% load url from future %}{% load static %}
+{% load static %}
 MAP
   NAME Results_WMS
   UNITS dd

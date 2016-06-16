@@ -7,6 +7,22 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
+# Remove DJcelery admin components.
+from django.contrib import admin
+from djcelery.models import (TaskState, WorkerState,
+                             PeriodicTask, IntervalSchedule, CrontabSchedule)
+from registration.models import (RegistrationProfile,)
+from django.contrib.sites.models import (Site)
+from tastypie.models import (ApiKey,)
+
+admin.site.unregister(TaskState)
+admin.site.unregister(WorkerState)
+admin.site.unregister(IntervalSchedule)
+admin.site.unregister(CrontabSchedule)
+admin.site.unregister(PeriodicTask)
+admin.site.unregister(RegistrationProfile)
+admin.site.unregister(Site)
+admin.site.unregister(ApiKey)
 
 # class ToolConfigAdmin(admin.TabularInline):
 #    model=models.ToolConfig
@@ -15,6 +31,8 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 #
 #    readonly_fields=['json_config_pretty',]
 #    fields=('json_config_pretty',)
+
+
 class ToolServerForm(forms.ModelForm):
     resend_email = forms.BooleanField(
         required=False, label="Re-send Tool Configuration Email")

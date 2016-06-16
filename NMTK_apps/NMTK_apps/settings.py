@@ -169,6 +169,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'djcelery',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -183,12 +184,12 @@ if TOOL_SERVER:
 if NMTK_SERVER:
     INSTALLED_APPS = INSTALLED_APPS + ('django.contrib.auth',
                                        'widget_tweaks',
-                                       'NMTK_server',  # The NMTK Server
                                        'registration',
-                                       'django.contrib.admin',
                                        # the UI components for NMTK server
                                        'NMTK_ui',
                                        'tastypie',
+                                       'NMTK_server',  # The NMTK Server
+                                       'django.contrib.admin',
                                        )
 
 # The test tool only gets installed if debug is set to true.
