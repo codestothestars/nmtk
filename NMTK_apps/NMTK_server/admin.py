@@ -185,13 +185,22 @@ class PageNameAdmin(admin.ModelAdmin):
 
 class ToolSampleFileAdmin(admin.ModelAdmin):
     list_display = ['tool__name', 'namespace']
-    readonly_fields = (
+    readonly_fields = fields = (
         'tool',
         'namespace',
-        'file',
         'file_name',
         'checksum',
         'content_type',
+    )
+
+    def tool__name(self, obj):
+        return obj.tool.name
+
+
+class ToolSampleConfigAdmin(admin.ModelAdmin):
+    list_display = ['tool__name', ]
+    readonly_fields = (
+        'tool',
     )
 
     def tool__name(self, obj):
@@ -269,7 +278,7 @@ admin.site.register(models.Job, JobAdmin)
 admin.site.register(models.JobStatus, JobStatusAdmin)
 admin.site.register(models.DataFile, DataFileAdmin)
 admin.site.register(models.ToolSampleFile, ToolSampleFileAdmin)
-admin.site.register(models.ToolSampleConfig, admin.ModelAdmin)
+admin.site.register(models.ToolSampleConfig, ToolSampleConfigAdmin)
 admin.site.register(models.MapColorStyle, MapColorStyleAdmin)
 
 # admin.site.register(models.ToolConfig, admin.ModelAdmin)

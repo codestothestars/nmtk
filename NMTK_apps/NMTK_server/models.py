@@ -48,10 +48,11 @@ class NMTKDataFileSystemStorage(FileSystemStorage):
     def __eq__(self, other):
         return self.subdir == other.subdir
 
-    def url(self, name):
-        raise NotImplementedError
-        return reverse('NMTK_server.download_datafile',
-                       kwargs={'file_id': name})
+#     def url(self, name):
+# raise NotImplementedError
+#         return None
+#         return reverse('NMTK_server.download_datafile',
+#                        kwargs={'file_id': name})
 
 
 @deconstructible

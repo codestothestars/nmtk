@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_save, post_delete, post_save
-from django.db.models.loading import cache
+from django.apps import apps
 from django.core.files.storage import get_storage_class
 from django.contrib.auth import get_user_model
 from django.dispatch import receiver
@@ -63,13 +63,11 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 def find_models_with_filefield():
     result = []
-    for app in cache.get_apps():
-        model_list = cache.get_models(app)
-        for model in model_list:
-            for field in model._meta.fields:
-                if isinstance(field, models.FileField):
-                    result.append(model)
-                    break
+    for model in apps.get_models():
+        for field in model._meta.fields:
+            if isinstance(field, models.FileField):
+                result.append(model)
+                break
     return result
 
 
