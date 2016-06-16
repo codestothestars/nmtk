@@ -164,14 +164,6 @@ def generate_datamodel(datafile, loader, logger):
                 cursor = connection.cursor()
                 with connection.schema_editor() as schema_editor:
                     schema_editor.create_model(Results_model)
-#                 for statement in connection.creation.sql_create_model(
-#                         Results_model, no_style())[0]:
-#                     logger.info('Running statement %s', statement)
-#                     cursor.execute(statement)
-#                 for statement in connection.creation.sql_indexes_for_model(
-#                         Results_model, no_style()):
-#                     logger.info('Running statement %s', statement)
-#                     cursor.execute(statement)
 
             this_row = dict((field_map[k], v) for k, v in row.iteritems())
             if spatial:

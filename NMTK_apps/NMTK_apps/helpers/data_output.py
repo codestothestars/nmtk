@@ -171,6 +171,7 @@ def data_query(request, datafile):
                     zoom,
                     pixels)
                 qs = qs.filter(nmtk_geometry__intersects=bbox)
+#                 logger.debug('Located features: %s', qs.count())
             else:
                 qs = qs.filter()
         except:
