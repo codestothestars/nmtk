@@ -1250,7 +1250,8 @@ class JobResource(ModelResource):
         'NMTK_server.api.JobFileResource',
         'jobfile_set',
         null=True,
-        full=True)
+        full=True,
+        readonly=True)
     results_files = fields.ToManyField(
         'NMTK_server.api.ResultsFileResource',
         'resultsfile_set',
