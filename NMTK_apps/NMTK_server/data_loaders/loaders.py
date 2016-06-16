@@ -7,6 +7,7 @@ import logging
 from importlib import import_module
 from django.core import exceptions
 import collections
+import datetime
 import logging
 import io
 import json
@@ -22,7 +23,7 @@ TYPES = {ogr.wkbPoint: 'POINT',
          ogr.wkbPolygon: 'POLYGON',
          ogr.wkbMultiLineString: 'MULTILINESTRING', }
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class FormatException(Exception):
@@ -49,11 +50,12 @@ class NMTKDataLoader(object):
     using a simplified interface.
     '''
 
-    def __init__(self, filename, srid=None):
+    def __init__(self, filename, srid=None, logger=None):
         '''
         On init, unpack the directory containing the files and
         generate an inventory of files.
         '''
+        self.logger = logger
         kwargs = {}
         if srid:
             kwargs = {'srid': srid}
@@ -102,8 +104,8 @@ class NMTKDataLoader(object):
         for dl_path in getattr(settings, 'DATA_LOADERS', DEFAULT_LOADERS):
             try:
                 dl_module, dl_classname = dl_path.rsplit('.', 1)
-                logger.debug('[load_driver] Loading module: %s, %s',
-                             dl_module, dl_classname)
+                self.logger.debug('[load_driver] Loading module: %s, %s',
+                                  dl_module, dl_classname)
             except ValueError:
                 raise exceptions.ImproperlyConfigured(
                     '%s isn\'t a data_loader module' % dl_path)
@@ -118,10 +120,10 @@ class NMTKDataLoader(object):
                 raise exceptions.ImproperlyConfigured(
                     'DataLoader module "%s" does not define a "%s" class' %
                     (dl_module, dl_classname))
-            logger.debug('Loading %s', dl_classname)
+            self.logger.debug('Loading %s', dl_classname)
             dl_instance = dl_class(self.get_filelist(), *args, **kwargs)
             if dl_instance.is_supported():
-                logger.info(
+                self.logger.info(
                     'Loader %s supports %s', dl_instance.name, dl_instance.filename)
                 self.dl_instance = dl_instance
                 return dl_instance.name
@@ -147,7 +149,7 @@ class NMTKDataLoader(object):
         data to count the features.
         '''
         if not getattr(self, 'dl_instance', None):
-            logger.error('Loader has no Data Loader object instance?!?')
+            self.logger.error('Loader has no Data Loader object instance?!?')
             return None
 
         if not hasattr(self, '_loader_result'):
@@ -199,7 +201,7 @@ class NMTKDataLoader(object):
                     'dimensions',
                     None),
             )
-        logger.debug('loader result is %s', self._loader_result)
+        self.logger.debug('loader result is %s', self._loader_result)
         return self._loader_result
 
     def export_json(self, filename):
@@ -240,11 +242,11 @@ class NMTKDataLoader(object):
                                        srs=srs)
         # Create the fields in the data file
         for field_name, field_type in self.info.ogr_fields_types:
-            logger.debug('Create field - name is %s', field_name)
+            self.logger.debug('Create field - name is %s', field_name)
             field_defn = ogr.FieldDefn(field_name.decode(
                 'utf-8').encode('utf-8', 'ignore'), field_type)
             if layer.CreateField(field_defn) != 0:
-                logger.debug("Creating %s field failed.", field_name)
+                self.logger.debug("Creating %s field failed.", field_name)
                 raise Exception('Failed to create field!')
 
         # Iterate over each of the features and create the elements in the
@@ -257,6 +259,10 @@ class NMTKDataLoader(object):
                     k = k.decode('utf-8').encode('utf-8', 'ignore')
                 if isinstance(v, (str, unicode,)):
                     v = v.decode('utf-8').encode('utf-8', 'ignore')
+#                 self.logger.debug('Setting feature: %s (%s), %s (%s)',
+#                                   k, type(k), v, type(v))
+                if isinstance(v, (datetime.datetime, datetime.date)):
+                    v = v.isoformat()
                 feat.SetField(k, v)
             geom = ogr.CreateGeometryFromWkt(geom_wkt)
             feat.SetGeometry(geom)
@@ -287,15 +293,15 @@ class NMTKDataLoader(object):
             name, extension = os.path.splitext(self.filename)
             # only handle a few types, since some of the others might mess
             # up some processing...like xlsx (which this will unpack.)
-            logger.debug('Extension is %s', extension)
+            self.logger.debug('Extension is %s', extension)
             if extension.lower() in ('.zip', '.gz', '.tgz'):
                 try:
                     # Ensure that the files are output in the working dir, and
                     # subdirectories are omitted (so it's a flat dir structure)
                     archive_util.unpack_archive(
                         self.filename, self.working_dir, progress_filter=self._progress_filter)
-                    logger.debug('Unpacked archive %s to %s', self.filename,
-                                 self.working_dir)
+                    self.logger.debug('Unpacked archive %s to %s', self.filename,
+                                      self.working_dir)
                     files = [
                         fn for fn in map(
                             lambda dir: os.path.join(
@@ -303,13 +309,13 @@ class NMTKDataLoader(object):
                                 self.working_dir)) if not os.path.isdir(fn)]
                     self._files = files
                 except archive_util.UnrecognizedFormat as e:
-                    logger.debug(
+                    self.logger.debug(
                         'Specified file (%s) is not a recognized archive',
                         self.filename)
                     self._files = [self.filename, ]
             else:
                 self._files = [self.filename, ]
-        logger.debug('File list is %s', self._files)
+        self.logger.debug('File list is %s', self._files)
         return self._files
 
 

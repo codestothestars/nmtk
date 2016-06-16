@@ -224,7 +224,7 @@ class TestFileUpload(NMTKTestCase):
                                     description)
         logger.debug('Location for uploaded file is %s',
                      response.headers['location'])
-        loc = response.headers['location']
+        loc = client.complete_url(response.headers['location'])
 
         response = client.get(loc, params={'format': 'json'})
         logger.debug(response.text)

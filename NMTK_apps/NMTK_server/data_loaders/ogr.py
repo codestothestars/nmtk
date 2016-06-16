@@ -38,17 +38,14 @@ class OGRLoader(BaseDataLoader):
         super(OGRLoader, self).__init__(*args, **kwargs)
         for fn in self.filelist:
             self.ogr_obj = ogr.Open(fn)
-            try:
-                self.data
-            except:
-                if logger.isEnabledFor(logging.DEBUG):
-                    logger.exception('Failed to open file %s', fn)
-                else:
-                    logger.info('The OGR Loader does not support this data ' +
-                                'format, deferring to the next loader ' +
-                                'in the chain.')
-                self.ogr_obj = None
-            if self.ogr_obj is not None:
+            if self.ogr_obj:
+                try:
+                    self.data
+                except Exception, e:
+                    logger.error('The OGR Loader does not support this data file: %s', fn,
+                                 exc_info=logger.isEnabledFor(logging.DEBUG))
+                    self.ogr_obj = None
+#                 if self.ogr_obj is not None:
                 self.spatial = True
                 self.format = self.ogr_obj.GetDriver().name
                 logger.debug('The format of the file is %s', self.format)
@@ -213,10 +210,11 @@ class OGRLoader(BaseDataLoader):
         '''
         Read the output file and provide an iterable result
         '''
+
         if not hasattr(self, '_data'):
+            logger.debug('Working on getting the data: %s', self.ogr_obj)
             if self.ogr_obj is None:
-                self._data = None
-                return None
+                raise FormatException('Not a recognized GIS format')
             layer = geom_extent = geom_type = spatial_ref = geom_srid = None
             # If we get here, then we have successfully determined the file type
             # that was provided, using OGR.  ogr_obj contains the OGR DataSource
@@ -257,6 +255,8 @@ class OGRLoader(BaseDataLoader):
                              epsg, type(epsg))
                 srs.SetFromUserInput(epsg)
             if (geom_srid <= 0 or geom_srid is None) and not spatial_ref:
+                logger.info(
+                    'Unable to determine the SRID, and no supplied SRID.')
                 raise FormatException('Unable to determine valid SRID ' +
                                       'for this data')
 

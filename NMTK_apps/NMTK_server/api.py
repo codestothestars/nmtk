@@ -169,7 +169,8 @@ class UserResourceAuthorization(Authorization):
 
 class UserResource(ModelResource):
     date_joined = fields.DateTimeField('date_joined', readonly=True)
-    last_login = fields.DateTimeField('last_login', readonly=True)
+    last_login = fields.DateTimeField('last_login', readonly=True, null=True,
+                                      blank=True)
 
     class Meta(ModelResource.Meta):
         queryset = User.objects.filter(is_active=True)

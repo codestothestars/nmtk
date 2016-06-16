@@ -38,8 +38,6 @@ from django.contrib.gis.geos import GEOSGeometry
 from more_itertools import unique_everseen
 import tempfile
 
-#from django.core.serializers.json import DjangoJSONEncoder
-logger = logging.getLogger(__name__)
 
 geomodel_mappings = {
     ogr.wkbPoint: ('models.PointField',
@@ -211,6 +209,7 @@ def generate_datamodel(datafile, loader, logger):
 
 @task(ignore_result=True)
 def email_user_job_done(job):
+    logger = email_user_job_done.get_logger()
     context = {'job': job,
                'user': job.user,
                'tool': job.tool,
@@ -234,12 +233,14 @@ def verify_celery():
     A simple task that just returns true - used to verify if celery is actually
     working - since we submit a job and wait for its result to come back.
     '''
+    logger = verify_celery.get_logger()
     return True
 
 
 @task(ignore_result=False)
 def add_toolserver(name, url, username, remote_ip=None, contact=None, skip_email=False,
                    verify_ssl=True):
+    logger = add_toolserver.get_logger()
     from NMTK_server import models
     try:
         User = get_user_model()
@@ -264,6 +265,7 @@ def email_tool_server_admin(toolserver):
     Email the tool server administrator with the credentials to use/add for 
     the tool server.
     '''
+    logger = email_tool_server_admin.get_logger()
     context = {'toolserver': toolserver,
                'site': Site.objects.get_current()}
     subject = render_to_string('NMTK_server/tool_server_added_notification_subject.txt',
@@ -284,6 +286,7 @@ def email_tool_server_admin(toolserver):
 @task(ignore_result=False)
 def discover_tools(toolserver):
     from NMTK_server import models
+    logger = discover_tools.get_logger()
     if not toolserver.server_url.endswith('/'):
         append_slash = '/'
     else:
@@ -590,7 +593,8 @@ def importDataFile(datafile, job_id=None):
     job = None
     try:
         loader = NMTKDataLoader(datafile.file.path,
-                                srid=datafile.srid)
+                                srid=datafile.srid,
+                                logger=logger)
         destination = None
         for import_file in loader.extract_files():
             # Figure out where these files need to go.
@@ -767,11 +771,11 @@ def importDataFile(datafile, job_id=None):
                                       (django_model_fields.FloatField,
                                        'float', float),
                                       (django_model_fields.DateField,
-                                       'date', None,),
+                                       'date', datetime.date.isoformat,),
                                       (django_model_fields.TimeField,
-                                       'time', None,),
+                                       'time', datetime.time.isoformat,),
                                       (django_model_fields.DateTimeField,
-                                       'datetime', None)]
+                                       'datetime', datetime.datetime.isoformat)]
                     if qs.count() > 0:
                         # Get a single row so that we can try to work with the
                         # fields.

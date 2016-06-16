@@ -116,21 +116,31 @@ class NMTKClient(object):
         default_args.update(kwargs)
         return default_args
 
+    def complete_url(self, url):
+        slash = '/'
+        if url.startswith('/'):
+            slash = ''
+        if not url.startswith('http'):
+            url = '{}{}{}'.format(self.base_url,
+                                  slash,
+                                  url)
+        return url
+
     def post(self, *args, **kwargs):
         kwargs = self._update_args(kwargs)
-        return self.request.post(*args, **kwargs)
+        return self.request.post(self.complete_url(args[0]), *args[1:], **kwargs)
 
     def put(self, *args, **kwargs):
         kwargs = self._update_args(kwargs)
-        return self.request.put(*args, **kwargs)
+        return self.request.put(self.complete_url(args[0]), *args[1:], **kwargs)
 
     def get(self, *args, **kwargs):
         kwargs = self._update_args(kwargs)
-        return self.request.get(*args, **kwargs)
+        return self.request.get(self.complete_url(args[0]), *args[1:], **kwargs)
 
     def delete(self, *args, **kwargs):
         kwargs = self._update_args(kwargs)
-        return self.request.delete(*args, **kwargs)
+        return self.request.delete(self.complete_url(args[0]), *args[1:], **kwargs)
 
     def login(self, username, password):
         '''
@@ -223,7 +233,6 @@ class NMTKClient(object):
             logger.debug('Response from user create was %s', response.text)
         # Status code of 201 means it got created.
         logger.debug('HTTP Result was %s', response.headers.get('location'))
-        exit(0)
         return response
 
 if __name__ == '__main__':
