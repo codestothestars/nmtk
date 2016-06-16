@@ -98,6 +98,17 @@ echo "Restarting services..."
 sudo service apache2 restart
 sudo service celeryd-${NMTK_NAME} restart
 
+sudo find ../nmtk_files -name '*.pyc' -delete # Not really needed...
+for FILE in $(sudo find ../nmtk_files/ -name '*.py'); do 
+  sudo grep app_label $FILE &> /dev/null 
+  if [[ $? != 0 ]]; then
+    echo "Adding app_label to $FILE"
+    sudo sed -i '/class Meta:/a \ \ \ \ \ \ \ \ app_label="NMTK_server"' $FILE
+  fi
+done
+
+
+
 python manage.py cleanup_mapfiles
 if [[ ${SERVER_ENABLED} == 1 ]]; then
   echo "NMTK Server is enabled"
