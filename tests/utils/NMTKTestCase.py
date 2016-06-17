@@ -57,6 +57,10 @@ class NMTKTestCase(unittest.TestCase):
     def getUsernamePassword(self):
         return (self._id_generator(), self._id_generator())
 
+    def getClient(self):
+        return NMTKClient(self.site_url,
+                          verify_ssl=self.verify_ssl)
+
     def _getSiteConfigDynamic(self):
         try:
             command = ['python',

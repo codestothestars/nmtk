@@ -46,7 +46,7 @@ class TestLoginAndLogout(NMTKTestCase):
         Tests that the client works properly, sets the right CSRF headers,
         and that the server accepts a login properly.
         '''
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         result = client.login(self.username, self.password)
         # Verify that we logged in successfully by checking the status code
         self.assertEqual(result.status_code, 302)
@@ -60,7 +60,7 @@ class TestLoginAndLogout(NMTKTestCase):
         logged out.
         '''
 
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         test_url = '%s%s' % (client.getURL('api'),
                              'job/')
         result = client.login(self.username, self.password)

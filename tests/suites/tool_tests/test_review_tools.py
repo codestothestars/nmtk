@@ -29,7 +29,6 @@
 # OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 from tests.utils.NMTKTestCase import NMTKTestCase
-from tests.utils.client import NMTKClient
 import logging
 import simplejson as json
 import os
@@ -51,7 +50,7 @@ class TestToolList(NMTKTestCase):
         '''
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         tool_url = client.getURL('api', 'tool/')
         logger.debug('Attempting to get tool list (%s) as not-logged-in user',
                      tool_url)

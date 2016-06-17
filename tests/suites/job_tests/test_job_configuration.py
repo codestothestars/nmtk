@@ -29,7 +29,6 @@
 # OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
 from tests.utils.NMTKTestCase import NMTKTestCase
-from tests.utils.client import NMTKClient
 import logging
 import simplejson as json
 import os
@@ -56,7 +55,7 @@ class TestJobConfiguration(NMTKTestCase):
         '''
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         response = client.login(username=username,
                                 password=password)
         filename = self.get_support_file('test1.geojson')
@@ -103,7 +102,7 @@ users cannot download results.
         '''
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         response = client.login(username=username,
                                 password=password)
         filename = self.get_support_file('test1.geojson')
@@ -285,7 +284,7 @@ users cannot download results.
         # Try to see if another user can download this job or results..
         username2, password2 = self.getUsernamePassword()
         user_uri = self._create_user(username2, password2)
-        client2 = NMTKClient(self.site_url)
+        client2 = self.getClient()
         client2.login(username=username2,
                       password=password2)
         response = client2.get(job_uri, params={'format': 'json'})
@@ -323,10 +322,10 @@ users cannot download results.
         user_uri = self._create_user(username, password)
         username2, password2 = self.getUsernamePassword()
         user_uri = self._create_user(username2, password2)
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         client.login(username=username,
                      password=password)
-        client2 = NMTKClient(self.site_url)
+        client2 = self.getClient()
         client2.login(username=username2,
                       password=password2)
         filename = self.get_support_file('test1.geojson')
@@ -366,12 +365,12 @@ users cannot download results.
         '''
         username, password = self.getUsernamePassword()
         user_uri = self._create_user(username, password)
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         response = client.login(username=username,
                                 password=password)
         username2, password2 = self.getUsernamePassword()
         user_uri2 = self._create_user(username2, password2)
-        client2 = NMTKClient(self.site_url)
+        client2 = self.getClient()
         client2.login(username=username2,
                       password=password2)
         filename = self.get_support_file('test1.geojson')

@@ -120,7 +120,7 @@ class TestAPIUserManagement(NMTKTestCase):
             msg='More than one user returned from query')
 
         # Verify we can login as the newly created user.
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         response = client.login(username, password)
         logger.debug('Response from login was %s', response.status_code)
         self.assertEqual(response.status_code, 302,
@@ -144,7 +144,7 @@ class TestAPIUserManagement(NMTKTestCase):
                          ' protected URI')
 
         # Try to login again as the disabled user:
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         response = client.login(username, password)
         self.assertEqual(200, response.status_code,
                          'Login for deleted user should fail')
@@ -171,10 +171,10 @@ class TestAPIUserManagement(NMTKTestCase):
         response = self._create_user(username2, password2)
         user2_url = response.headers['location']
 
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         response = client.login(username, password)
 
-        client2 = NMTKClient(self.site_url)
+        client2 = self.getClient()
         response = client2.login(username2, password2)
 
         client_data = client.get(user_url).json()
@@ -187,7 +187,7 @@ class TestAPIUserManagement(NMTKTestCase):
                          'Without old password password change should fail')
 
         # login with new password
-        client_a = NMTKClient(self.site_url)
+        client_a = self.getClient()
         response = client_a.login(username, client_data['password'])
         self.assertEqual(
             response.status_code,
@@ -201,7 +201,7 @@ class TestAPIUserManagement(NMTKTestCase):
                          'Without old password password change should fail')
 
         # login with new password
-        client_a = NMTKClient(self.site_url)
+        client_a = self.getClient()
         response = client_a.login(username, client_data['password'])
         self.assertEqual(
             response.status_code,
@@ -213,7 +213,7 @@ class TestAPIUserManagement(NMTKTestCase):
         client.put(user_url, data=json.dumps(client_data))
 
         # login with new password
-        client_a = NMTKClient(self.site_url)
+        client_a = self.getClient()
         response = client_a.login(username, client_data['password'])
         self.assertEqual(response.status_code, 302,
                          'Redirect expected after successful login')
@@ -258,7 +258,7 @@ class TestAPIUserManagement(NMTKTestCase):
                         'superuser tries to change another users password')
 
         # Verify password change worked
-        client2_a = NMTKClient(self.site_url)
+        client2_a = self.getClient()
         response = client2_a.login(username2, password)
         self.assertEqual(response.status_code, 302,
                          'Redirect expected after successful login')
@@ -282,7 +282,7 @@ class TestAPIUserManagement(NMTKTestCase):
         user_uri = response.headers['location']
 
         # Get a login session
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         response = client.login(username, password)
 
         user_data = client.get(user_uri).json()
@@ -311,7 +311,7 @@ class TestAPIUserManagement(NMTKTestCase):
         user_uri = response.headers['location']
 
         # Try to create a user
-        client = NMTKClient(self.site_url)
+        client = self.getClient()
         response = client.login(username, password)
 
         data = {'username': '%s1' % username,
