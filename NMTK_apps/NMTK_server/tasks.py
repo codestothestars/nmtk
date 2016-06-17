@@ -233,7 +233,7 @@ def verify_celery():
     A simple task that just returns true - used to verify if celery is actually
     working - since we submit a job and wait for its result to come back.
     '''
-    logger = verify_celery.get_logger()
+#     logger = verify_celery.get_logger()
     return True
 
 

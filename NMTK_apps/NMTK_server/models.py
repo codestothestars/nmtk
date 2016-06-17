@@ -1,5 +1,5 @@
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import JSONField
+from jsonfield import JSONField
 from random import choice
 from django.conf import settings
 from django.utils import timezone
