@@ -629,13 +629,14 @@ def importDataFile(datafile, job_id=None):
         datafile.feature_count = loader.info.feature_count
         if not datafile.description:
             datafile.description = loader.info.format
+        future_status = datafile.status
         if loader.is_spatial and not datafile.srid:
-            datafile.status = datafile.IMPORT_FAILED
+            future_status = datafile.IMPORT_FAILED
             datafile.status_message = 'Please specify SRID for this file (unable to auto-identify SRID)'
         elif not job_id:
-            datafile.status = datafile.IMPORTED
+            future_status = datafile.IMPORTED
         else:
-            datafile.status = datafile.IMPORT_RESULTS_COMPLETE
+            future_status = datafile.IMPORT_RESULTS_COMPLETE
 
         # We need to merge these things..
         desired_field_order = datafile.fields or []
@@ -726,7 +727,7 @@ def importDataFile(datafile, job_id=None):
             suffix = 'geojson'
         else:
             suffix = 'json'
-        if datafile.status in (
+        if future_status in (
                 datafile.IMPORTED,
                 datafile.IMPORT_RESULTS_COMPLETE):
             if datafile.geom_type == 99:
@@ -871,6 +872,7 @@ def importDataFile(datafile, job_id=None):
 
             except:
                 logger.exception('Failed to update job status to complete?!!')
+        datafile.status = future_status
     except Exception as e:
         logger.error('Failed import process!', exc_info=True)
         datafile.processed_file = None
@@ -891,5 +893,4 @@ def importDataFile(datafile, job_id=None):
 
     if job:
         job.save()
-    # Now we need to create the spatialite version of this thing.
     datafile.save()

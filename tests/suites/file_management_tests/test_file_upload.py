@@ -171,6 +171,7 @@ class TestFileUpload(NMTKTestCase):
             (response.status_code))
 
         response = client.get(data_file_url)
+        logger.debug("%s", response.json())
         self.assertEqual(
             response.status_code,
             404,

@@ -702,18 +702,19 @@ class DataFile(models.Model):
                 cs.update(line)
             self.checksum = cs.hexdigest()
         result = super(DataFile, self).save(*args, **kwargs)
-        content_type = magic.from_file(self.file.path, mime=True)
-        # Ignore it when magic finds a text/plain type, which could be something
-        # else (like json/geojson,csv, etc)
-        if content_type != self.content_type and 'text' not in content_type:
-            logger.info('magic detected content type (%s) does not match uploaded type (%s) (%s)',
-                        content_type, self.content_type,
-                        content_type)
-            self.content_type = content_type
-            super(DataFile, self).save(*args, **kwargs)
-        else:
-            logger.debug(
-                'Expected type (from magic) matches uploaded type (%s)', content_type)
+        if not self.content_type:
+            content_type = magic.from_file(self.file.path, mime=True)
+            # Ignore it when magic finds a text/plain type, which could be something
+            # else (like json/geojson,csv, etc)
+            if content_type != self.content_type and 'text' not in content_type:
+                logger.info('magic detected content type (%s) does not match uploaded type (%s) (%s)',
+                            content_type, self.content_type,
+                            content_type)
+                self.content_type = content_type
+                super(DataFile, self).save(*args, **kwargs)
+            else:
+                logger.debug(
+                    'Expected type (from magic) matches uploaded type (%s)', content_type)
         if import_datafile:
             '''
             If the file was just uploaded (status PENDING) then we kick off
