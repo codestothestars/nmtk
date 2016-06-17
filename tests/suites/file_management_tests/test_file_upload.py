@@ -171,12 +171,11 @@ class TestFileUpload(NMTKTestCase):
             (response.status_code))
 
         response = client.get(data_file_url)
-        logger.debug("%s", response.json())
         self.assertEqual(
             response.status_code,
             404,
-            'Expected response code of 404, not %s' %
-            (response.status_code))
+            'Expected response code of 404, not %s: %s' %
+            (response.status_code, response.text))
 
     def test_basic_json_upload(self):
         '''
