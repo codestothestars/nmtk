@@ -97,6 +97,7 @@ for other operating systems:
  * git
  * apache2
  * python-dev
+ * python-tk
  * python-setuptools
  * python-virtualenv
  * libapache2-mod-wsgi
@@ -122,7 +123,7 @@ In Ubuntu 16.04, the following command may be used to install all these pre-requ
                python-virtualenv libapache2-mod-wsgi libxslt-dev libxml2-dev \
                libgd2-xpm-dev libproj-dev  libfreetype6-dev cgi-mapserver \
                libgdal-dev gdal-bin gfortran libopenblas-dev liblapack-dev \
-               libffi-dev
+               libffi-dev python-tk 
   
   # Enable the SSL module, not required if you plan to not use ssl.             
   sudo a2enmod ssl
