@@ -110,12 +110,12 @@ for other operating systems:
 
 You may also need to download, compile, and install (from source) GDAL version 1.10
 or greater if your operating system does not provide a version greater than 1.10.
-Ubuntu 14.04 LTS does provide a suitable GDAL version.  GDAL v1.10 added support for
+Ubuntu 16.04 LTS does provide a suitable GDAL version.  GDAL v1.10 added support for
 CRS values in GeoJSON files - which are a requirement for NMTK.  Also, should you
 compile GDAL locally, you should be sure to provide the --with-python argument and
 that the location of the installed files is correctly recognized.
 
-In Ubuntu 14.04, the following command may be used to install all these pre-requisites:
+In Ubuntu 16.04, the following command may be used to install all these pre-requisites:
 
   ```
   sudo apt-get install build-essential git apache2 python-dev python-setuptools \
@@ -139,10 +139,10 @@ You may follow the installation instructions for PostgreSQL available here:
 
 http://www.postgresql.org/download/
 
-For Ubuntu 14.04 LTS you can use the following commands to install the database:
+For Ubuntu 16.04 LTS you can use the following commands to install the database:
 
    ```
-   echo "deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main" > /tmp/pgdg.list
+   echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /tmp/pgdg.list
    sudo mv /tmp/pgdg.list /etc/apt/sources.list.d
    sudo chown root.root /etc/apt/sources.list.d/pgdg.list
    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc |   sudo apt-key add -
@@ -169,7 +169,7 @@ configuration files:
   3.  Edit the pg_hba.conf file (use the file found in step #2 above):
     
     ```
-    sudo nano /etc/postgresql/9.3/main/pg_hba.conf
+    sudo nano /etc/postgresql/9.5/main/pg_hba.conf
     ```
 
   4.  Go to the end of the file and locate the line that reads as below, and
@@ -232,6 +232,7 @@ a swap space of at least 2 GB.  This can be done using the following commands:
     ```
     sudo dd if=/dev/zero of=/swapfile bs=$((1024*1024)) count=$COUNT
     sudo mkswap /swapfile
+    sudo chmod 0600 /swapfile 
     # Add a line to the end of /etc/fstab so the swap will be available after a reboot
     sudo sed -i '$ a /swapfile       none    swap    sw      0       0 ' /etc/fstab
     # Enable the newly allocated swap space
@@ -397,8 +398,8 @@ set of applications, and the NMTK Server components reside in another set.)
  
   ```
   mkdir nmtk_files
-  chown www-data.${USER} nmtk_files
-  chmod g+rwxs nmtk_files
+  sudo chown www-data.${USER} nmtk_files
+  sudo chmod g+rwxs nmtk_files
   ```
  
  3. Create the initial spatialite database:
