@@ -31,7 +31,6 @@
 from django.conf import settings
 from django.http import HttpResponse, Http404
 from django.core.urlresolvers import reverse
-from NMTK_apps import urls
 from NMTK_apps import decorators
 from django.core.exceptions import SuspiciousOperation, PermissionDenied
 import json

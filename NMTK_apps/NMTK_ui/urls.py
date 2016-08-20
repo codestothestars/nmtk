@@ -28,6 +28,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 # OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
-from django.conf.urls import patterns, include, url
-urlpatterns = patterns(
-    '', url('^$', 'NMTK_ui.views.nmtk_ui', {}, name='nmtk_ui_nmtk_ui'), )
+from django.conf.urls import include, url
+import NMTK_ui.views
+urlpatterns = [
+    url('^$', NMTK_ui.views.nmtk_ui, {}, name='nmtk_ui_nmtk_ui'), ]

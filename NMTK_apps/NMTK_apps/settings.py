@@ -43,7 +43,7 @@ BASE_PATH = os.path.dirname(__file__)
 
 
 DEBUG = False
-TEMPLATE_DEBUG = TASTYPIE_FULL_DEBUG = DEBUG
+TASTYPIE_FULL_DEBUG = DEBUG
 from local_settings import *
 warnings.filterwarnings(
     'ignore', r"'NoneType' object has no attribute 'finishGEOS_r'")
@@ -121,12 +121,32 @@ STATICFILES_FINDERS = (
 )
 
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    #     'django.template.loaders.eggs.Loader',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            # This directory adds the templates that are stored in the NMTK_apps directory,
+            # Which is not an app - but the underpinnings for everything else.
+            os.path.join(BASE_PATH, 'templates'), ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
+                "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.request",
+                "NMTK_apps.context_processors.registration_open",
+            ],
+            #             'loaders': ['django.template.loaders.filesystem.Loader',
+            #                         'django.template.loaders.app_directories.Loader', ],
+            'debug': DEBUG
+        },
+    },
+]
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -143,28 +163,7 @@ ROOT_URLCONF = 'NMTK_apps.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'NMTK_apps.wsgi.application'
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
 
-    # This directory adds the templates that are stored in the NMTK_apps directory,
-    # Which is not an app - but the underpinnings for everything else.
-    os.path.join(BASE_PATH, 'templates'),
-)
-
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.template.context_processors.debug",
-    "django.template.context_processors.i18n",
-    "django.template.context_processors.media",
-    "django.template.context_processors.static",
-    "django.template.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "django.template.context_processors.request",
-    "NMTK_apps.context_processors.registration_open",
-)
 
 INSTALLED_APPS = (
     'django.contrib.contenttypes',
@@ -177,6 +176,7 @@ INSTALLED_APPS = (
 )
 
 TASTYPIE_DEFAULT_FORMATS = ['json', ]
+
 
 if TOOL_SERVER:
     INSTALLED_APPS = INSTALLED_APPS + ('NMTK_tools',  # An app used to generate a list of tools.
@@ -203,6 +203,10 @@ if NMTK_SERVER:
 # various tasks in the GeoJSON format.
 SERIALIZATION_MODULES = {'geojson': 'NMTK_apps.serializers.geojson'}
 
+# Some celery settings
+# CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml', 'pickle']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
 
 # The URL Used for logins
 LOGIN_URL = '/server/login/'

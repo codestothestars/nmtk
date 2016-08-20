@@ -9,58 +9,56 @@ from django.core.urlresolvers import reverse
 
 class Command(BaseCommand):
     help = 'Add a new tool server for use by the NMTK API.'
-    option_list = BaseCommand.option_list + (
-        make_option(
+
+    def add_arguments(self, parser):
+
+        parser.add_argument('server_name', nargs=1)
+        # Named (optional) arguments
+        parser.add_argument(
             '-i',
             '--ip-restrict',
-            type='string',
             action='store',
             dest='ip',
             default=None,
-            help='Provide the remote IP for the tool.'),
-        make_option(
+            help='Provide the remote IP for the tool.')
+
+        parser.add_argument(
             '-u',
             '--url',
-            type='string',
             action='store',
             dest='url',
             default=None,
-            help='Provide the base URL for the tool server.'),
-        make_option(
+            help='Provide the base URL for the tool server.')
+        parser.add_argument(
             '-U',
             '--username',
-            type='string',
             action='store',
             dest='username',
             default=None,
-            help='Provide the username for the user that is adding the server.'),
-        make_option(
+            help='Provide the username for the user that is adding the server.')
+        parser.add_argument(
             '-c',
             '--contact',
-            type='string',
             action='store',
             dest='contact',
             default=None,
-            help='Provide the contact for the user that is managing the tool server.'),
-        make_option(
+            help='Provide the contact for the user that is managing the tool server.')
+        parser.add_argument(
             '--skip-email',
             action='store_true',
             dest='skip_email',
             default=False,
-            help="Skip sending the notification email for the newly added tool server"),
-        make_option(
+            help="Skip sending the notification email for the newly added tool server")
+        parser.add_argument(
             '--self-signed-ssl',
             action='store_true',
             dest='self_signed_ssl',
             default=False,
-            help='Indicates that the tool server being added uses a self-signed ssl certificate.'),
-    )
+            help='Indicates that the tool server being added uses a self-signed ssl certificate.')
 
     def handle(self, *args, **options):
         if not settings.NMTK_SERVER:
             raise CommandError('The NMTK Server is not currently enabled')
-        if not len(args):
-            raise CommandError('Please enter the name of the tool to add')
         if not options['url']:
             raise CommandError(
                 'Please provide the --url option and a server URL')
@@ -72,7 +70,7 @@ class Command(BaseCommand):
 #        except Exception, e:
 #            raise CommandError('Username specified (%s) not found!' %
 #                               options['username'])
-        task = tasks.add_toolserver.delay(name=args[0],
+        task = tasks.add_toolserver.delay(name=options['server_name'][0],
                                           url=options['url'],
                                           remote_ip=options['ip'],
                                           username=options['username'],

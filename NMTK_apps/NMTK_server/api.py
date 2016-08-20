@@ -1,6 +1,6 @@
 from NMTK_server.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from NMTK_server import models
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from tastypie.exceptions import Unauthorized
 from tastypie.authentication import SessionAuthentication
 from tastypie.http import HttpForbidden, HttpUnauthorized
@@ -201,7 +201,7 @@ class UserResource(ModelResource):
                 'api_name': 'v1'})
         return bundle
 
-    def override_urls(self):
+    def prepend_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/login%s$" % (self._meta.resource_name,
                                                       trailing_slash()),

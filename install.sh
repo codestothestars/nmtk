@@ -79,6 +79,8 @@ done
 if [ -f ./.nmtk_config ]; then
   source ./.nmtk_config
 fi
+SELF_SIGNED_CERT=$(venv/bin/python NMTK_apps/manage.py query_settings --self-signed-cert)
+SSL=$(venv/bin/python NMTK_apps/manage.py query_settings --ssl)
 if [ ${#HOSTN} == 0 ]; then
   read -p "URL Hostname (press enter for ${HOSTN:=$HOSTNAME}): " HOSTN 
   if [[ ${#HOSTN} == 0 ]]; then
@@ -159,7 +161,7 @@ if [ ${#SECRET} == 0 ]; then
   SECRET=$(python -c "import string,random; print ''.join(random.choice(string.letters+string.digits) for i in xrange(64))")
 fi
 
-export FIRSTNAME LASTNAME PASSWORD EMAIL NMTK_USERNAME NMTK_NAME URL PGUSER PGPASSWORD SSL CONF_FILE HOSTN SECRET
+export FIRSTNAME LASTNAME PASSWORD EMAIL NMTK_USERNAME NMTK_NAME URL PGUSER PGPASSWORD CONF_FILE HOSTN SECRET
    cat <<-EOT > .nmtk_config
 	# These settings were built from the first run of the install.sh script
 	# to change them, remove this file and re-run the install script.
@@ -172,7 +174,6 @@ export FIRSTNAME LASTNAME PASSWORD EMAIL NMTK_USERNAME NMTK_NAME URL PGUSER PGPA
 	NMTK_NAME=${NMTK_NAME}
 	URL=${URL}
 	PGUSER=${PGUSER}
-	SSL=${SSL}
 	HOSTN=${HOSTN}
 	SECRET=${SECRET}
 EOT
@@ -197,21 +198,38 @@ sudo -s -- <<EOF
     -e 's|HOSTNAME|'${HOSTN}'|g' \
     -e 's|NMTK_NAME|'${NMTK_NAME}'|g' \
     conf/${CONF_FILE} > /etc/apache2/sites-available/${NMTK_NAME}.conf
+  # In the case of a self-signed certificate, we need to remove the chain
+  # file information from the config file.
+  if [[ "${SELF_SIGNED_CERT}" == 1 ]]; then
+    sed -i '/SSLCertificateChainFile.*$/d' /etc/apache2/sites-available/${NMTK_NAME}.conf
+    echo "You are using a self signed cert, you probably 'ought to run conf/autogen.sh"
+  fi
   a2ensite ${NMTK_NAME}.conf
 #fi
 EOF
-echo ${NMTK_NAME}.conf
+#echo ${NMTK_NAME}.conf
 
 BASEDIR=$(dirname $0)
 CELERYD_NAME=${NMTK_NAME}
-echo -n "Stopping the celery daemon (this might take a few seconds)."
 if [[ -f /var/run/celery/$CELERYD_NAME.pid ]]; then
-   sudo kill $(cat /var/run/celery/$CELERYD_NAME.pid)
-   sleep 15
-   echo -n "."
-   if [[ -f /var/run/celery/$CELERYD_NAME.pid ]]; then
-      echo "Unable to stop celery daemon!"
-      exit 1
+   kill -0 $(cat /var/run/celery/$CELERYD_NAME.pid) 2> /dev/null
+   if [ $? == 0 ]; then 
+     echo -n "Stopping the celery daemon (this might take a few seconds)."
+     sudo kill $(cat /var/run/celery/$CELERYD_NAME.pid)
+     sleep 15
+     echo -n "."
+     if [[ -f /var/run/celery/$CELERYD_NAME.pid ]]; then
+        kill -0 $(cat /var/run/celery/$CELERYD_NAME.pid)
+        if [ $? == 0 ]; then 
+          echo "Unable to stop celery daemon!"
+          exit 1
+        else 
+          sudo rm /var/run/celery/$CELERYD_NAME.pid
+        fi
+     fi
+   else
+      echo "Removing stale PID file for celery"
+      sudo rm /var/run/celery/$CELERYD_NAME.pid
    fi
 fi
 else
@@ -275,8 +293,8 @@ if [[ ${SERVER_ENABLED} == 1 ]]; then
 fi
 
 
-
-python manage.py collectstatic --noinput -l -c
+echo "Quietly collecting static media"
+python manage.py collectstatic --noinput -l -c &> /dev/null
 deactivate
 popd &> /dev/null
 if [[ $WINDOWS == 0 ]]; then

@@ -28,7 +28,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 # OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 # DAMAGE.
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url, include
 from django.conf import settings
 from django.views.generic import RedirectView
 
@@ -40,19 +40,18 @@ from django.views.generic import RedirectView
 # if getattr(settings, 'NMTK_ENABLE_SERVER', True):
 
 if 'NMTK_server' in settings.INSTALLED_APPS:
-    urlpatterns = patterns('',
-                           url(r'^$', RedirectView.as_view(url='/server/')),
-                           url(r'^server/', include('NMTK_server.urls')),
-                           )
+    urlpatterns = [url(r'^$', RedirectView.as_view(url='/server/')),
+                   url(r'^server/', include('NMTK_server.urls')),
+                   ]
 else:
-    urlpatterns = patterns('',
-                           url(r'^$', RedirectView.as_view(url='/index/')),
-                           )
+    urlpatterns = [
+        url(r'^$', RedirectView.as_view(url='/index/')),
+    ]
 # Enable the UI if the app is in the list of installed applications.
 if 'NMTK_ui' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-                            url(r'^ui/', include('NMTK_ui.urls')),
-                            )
+    urlpatterns += [
+        url(r'^ui/', include('NMTK_ui.urls')),
+    ]
 
 
 # Staticfiles here...
@@ -64,37 +63,38 @@ if settings.DEBUG:
 # So the tool server must always be last, because it's URL patterns are somewhat
 # more generic.
 if settings.TOOL_SERVER:
-    urlpatterns += patterns('',
-                            # This one is used to generate the tool index for
-                            # this tool server.
-                            url(r'^index/?$', 'NMTK_tools.views.toolIndex',
-                                {}, name='tool_index'),
-                            # These are for the actual tools we have supported.
-                            )
-    urlpatterns += patterns('',
-                            url(r'^(?P<tool_name>[^/]+)/analyze/?$',
-                                'NMTK_tools.views.runModel',
-                                {'subtool_name': None},
-                                name='tool_analyze'),
-                            url(r'^(?P<tool_name>[^/]+)(?:/(?P<subtool_name>[^/]+))/analyze/?$',
-                                'NMTK_tools.views.runModel',
-                                {},
-                                name='tool_analyze'),
-                            )
+    import NMTK_tools.views
+    urlpatterns += [
+        # This one is used to generate the tool index for
+        # this tool server.
+        url(r'^index/?$', NMTK_tools.views.toolIndex,
+            {}, name='tool_index'),
+        # These are for the actual tools we have supported.
+    ]
+    urlpatterns += [
+        url(r'^(?P<tool_name>[^/]+)/analyze/?$',
+            NMTK_tools.views.runModel,
+            {'subtool_name': None},
+            name='tool_analyze'),
+        url(r'^(?P<tool_name>[^/]+)(?:/(?P<subtool_name>[^/]+))/analyze/?$',
+            NMTK_tools.views.runModel,
+            {},
+            name='tool_analyze'),
+    ]
     # Generic - even if we don't have a tool these will get triggered,
     # so the need to be smart enough to just return an error if/when
     # necessary.
-    urlpatterns += patterns('',
-                            url(r'^(?P<tool_name>[^/]+)/config/?$',
-                                'NMTK_tools.views.generateToolConfiguration',
-                                {'subtool_name': None},
-                                name='tool_config'),
-                            url(r'^(?P<tool_name>[^/]+)(?:/(?P<subtool_name>[^/]+))/config/?$',
-                                'NMTK_tools.views.generateToolConfiguration',
-                                {},
-                                name='tool_config'),
-                            url(r'^(?P<tool_name>[^/]+)(?:/(?P<subtool_name>[^/]+)/?)?$',
-                                'NMTK_tools.views.tool_base_view',
-                                {},
-                                name='tool_base'),
-                            )
+    urlpatterns += [
+        url(r'^(?P<tool_name>[^/]+)/config/?$',
+            NMTK_tools.views.generateToolConfiguration,
+            {'subtool_name': None},
+            name='tool_config'),
+        url(r'^(?P<tool_name>[^/]+)(?:/(?P<subtool_name>[^/]+))/config/?$',
+            NMTK_tools.views.generateToolConfiguration,
+            {},
+            name='tool_config'),
+        url(r'^(?P<tool_name>[^/]+)(?:/(?P<subtool_name>[^/]+)/?)?$',
+            NMTK_tools.views.tool_base_view,
+            {},
+            name='tool_base'),
+    ]

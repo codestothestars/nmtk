@@ -37,12 +37,15 @@ import subprocess
 
 class Command(BaseCommand):
     help = 'Minify existing JavaScript code and produce nmtk_ui_app.min.js'
-    option_list = BaseCommand.option_list + (
-        make_option('-o', '--optimize',
-                    action='store_true',
-                    dest='optimize',
-                    default=False,
-                    help='Tell r.js to uglify the code.'),)
+
+    def add_arguments(self, parser):
+
+        # Named (optional) arguments
+        parser.add_argument('-o', '--optimize',
+                            action='store_true',
+                            dest='optimize',
+                            default=False,
+                            help='Tell r.js to uglify the code.')
 
     def handle(self, *args, **options):
         # Find node

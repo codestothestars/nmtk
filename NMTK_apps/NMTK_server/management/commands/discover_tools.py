@@ -8,14 +8,15 @@ from django.conf import settings
 
 class Command(BaseCommand):
     help = 'Go out to the NMTK servers and discover new tools, update configs.'
-    option_list = BaseCommand.option_list + (
-        make_option('-t', '--tool-name',
-                    type='string',
-                    action='store',
-                    dest='tool_name',
-                    default=None,
-                    help='Specify a single tool server ID to update.'),
-    )
+
+    def add_arguments(self, parser):
+
+        # Named (optional) arguments
+        parser.add_argument('-t', '--tool-name',
+                            action='store',
+                            dest='tool_name',
+                            default=None,
+                            help='Specify a single tool server ID to update.')
 
     def handle(self, *args, **options):
         '''

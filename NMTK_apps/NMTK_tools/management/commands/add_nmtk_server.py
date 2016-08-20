@@ -10,6 +10,10 @@ import sys
 class Command(BaseCommand):
     help = 'Add a new tool server for use by this tool server..'
 
+    def add_arguments(self, parser):
+        # Positional arguments
+        parser.add_argument('server_config_file', nargs='?', default=None)
+
     def handle(self, *args, **options):
         parameters = None
         if not settings.TOOL_SERVER:
@@ -21,7 +25,7 @@ class Command(BaseCommand):
                 raise CommandError(
                     'Please the path to the file containing the NMTK Server configuration, or pass the data in via a pipe')
         if not parameters:
-            with open(args[1]) as data_file:
+            with open(options['server_config_file'][0]) as data_file:
                 parameters = json.load(data_file)
         task = tasks.add_nmtkserver.delay(parameters=parameters)
         m = task.get()

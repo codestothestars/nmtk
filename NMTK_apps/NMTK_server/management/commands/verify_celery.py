@@ -11,19 +11,21 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'A simple cron job to verify if the celery daemon is running and tasks can round-trip sucessfully.'
-    option_list = BaseCommand.option_list + (
-        make_option('--email-admins',
-                    action='store_true',
-                    dest='email_admins',
-                    default=False,
-                    help='Email the admins on error..'),
-        make_option('--timeout',
-                    type='int',
-                    action='store',
-                    dest='timeout',
-                    default=600,
-                    help='Specify how long to wait before considering the task failed (default is 600 seconds)'),
-    )
+
+    def add_arguments(self, parser):
+
+        # Named (optional) arguments
+        parser.add_argument('--email-admins',
+                            action='store_true',
+                            dest='email_admins',
+                            default=False,
+                            help='Email the admins on error..')
+        parser.add_argument('--timeout',
+                            type='int',
+                            action='store',
+                            dest='timeout',
+                            default=600,
+                            help='Specify how long to wait before considering the task failed (default is 600 seconds)')
 
     def handle(self, *args, **options):
         '''

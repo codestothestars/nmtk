@@ -6,15 +6,16 @@ from optparse import make_option
 
 class Command(BaseCommand):
     help = '''Remove unreferenced files (if they exist)'''
-    option_list = BaseCommand.option_list + (
 
-        make_option(
+    def add_arguments(self, parser):
+
+        # Named (optional) arguments
+        parser.add_argument(
             '--really',
             action='store_true',
             dest='really',
             default=False,
-            help='Actually delete the files (default is a dry run, just print the files to be removed'),
-    )
+            help='Actually delete the files (default is a dry run, just print the files to be removed')
 
     def handle(self, *args, **options):
         if not settings.NMTK_SERVER:

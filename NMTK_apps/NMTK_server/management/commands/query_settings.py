@@ -7,48 +7,55 @@ from django.core.urlresolvers import reverse
 
 class Command(BaseCommand):
     help = 'List the database type.'
-    option_list = BaseCommand.option_list + (
-        make_option('-t', '--type',
-                    action='store_true',
-                    dest='type',
-                    default=False,
-                    help='Print the database type.'),
-        make_option('-d', '--database',
-                    action='store_true',
-                    dest='database',
-                    default=False,
-                    help='Provide the name of the database.'),
-        make_option('-u', '--username',
-                    action='store_true',
-                    dest='username',
-                    default=False,
-                    help='Provide the name of the database user.'),
-        make_option('--self-signed-cert',
-                    action='store_true',
-                    dest='self_signed_cert',
-                    default=False,
-                    help='Return a 1 if the server is using a self signed certificate, 0 otherwise..'),
-        make_option('--nmtk-server-status',
-                    action='store_true',
-                    dest='nmtk_server_status',
-                    default=False,
-                    help='Return a 1 if the NMTK Server is enabled, 0 otherwise..'),
-        make_option('--tool-server-status',
-                    action='store_true',
-                    dest='tool_server_status',
-                    default=False,
-                    help='Return a 1 if the Tool Server is enabled, 0 otherwise..'),
-        make_option('--production',
-                    action='store_true',
-                    dest='production',
-                    default=False,
-                    help='Return a 1 if the NMTK server is in production (minified UI).'),
-        make_option('--tool-server-url',
-                    action='store_true',
-                    dest='tool_server_url',
-                    default=False,
-                    help='Return the URL for the Tool server.'),
-    )
+
+    def add_arguments(self, parser):
+
+        # Named (optional) arguments
+        parser.add_argument('-t', '--type',
+                            action='store_true',
+                            dest='type',
+                            default=False,
+                            help='Print the database type.')
+        parser.add_argument('-d', '--database',
+                            action='store_true',
+                            dest='database',
+                            default=False,
+                            help='Provide the name of the database.')
+        parser.add_argument('-u', '--username',
+                            action='store_true',
+                            dest='username',
+                            default=False,
+                            help='Provide the name of the database user.')
+        parser.add_argument('--self-signed-cert',
+                            action='store_true',
+                            dest='self_signed_cert',
+                            default=False,
+                            help='Return a 1 if the server is using a self signed certificate, 0 otherwise..')
+        parser.add_argument('--nmtk-server-status',
+                            action='store_true',
+                            dest='nmtk_server_status',
+                            default=False,
+                            help='Return a 1 if the NMTK Server is enabled, 0 otherwise..')
+        parser.add_argument('--tool-server-status',
+                            action='store_true',
+                            dest='tool_server_status',
+                            default=False,
+                            help='Return a 1 if the Tool Server is enabled, 0 otherwise..')
+        parser.add_argument('--production',
+                            action='store_true',
+                            dest='production',
+                            default=False,
+                            help='Return a 1 if the NMTK server is in production (minified UI).')
+        parser.add_argument('--tool-server-url',
+                            action='store_true',
+                            dest='tool_server_url',
+                            default=False,
+                            help='Return the URL for the Tool server.')
+        parser.add_argument('--ssl',
+                            action='store_true',
+                            dest='ssl',
+                            default=False,
+                            help='Return the server SSL setting.')
 
     def handle(self, *args, **options):
         if options['type']:
@@ -74,6 +81,11 @@ class Command(BaseCommand):
                 print 0
         elif options['production']:
             if settings.PRODUCTION:
+                print 1
+            else:
+                print 0
+        elif options['ssl']:
+            if settings.SSL:
                 print 1
             else:
                 print 0
