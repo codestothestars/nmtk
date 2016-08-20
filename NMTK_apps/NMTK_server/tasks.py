@@ -447,7 +447,8 @@ def updateToolConfig(tool):
     try:
         config = tool.toolconfig
     except Exception, e:
-        logger.exception('Could not get toolconfig: %s', e)
+        logger.info('No toolconfig exists yet: %s', e,
+                    exc_info=logger.isEnabledFor(logging.DEBUG))
         config = models.ToolConfig(tool=tool)
     config_data = json_config.json()
     config.json_config = config_data
