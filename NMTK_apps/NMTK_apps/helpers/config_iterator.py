@@ -67,6 +67,18 @@ class ConfigIterator(object):
             self.file_iterator = iter(self.data_parsed['features'])
         return self
 
+    def hasProperty(self, property):
+        '''
+        Returns a true/false value depending on whether the property has been
+        configured by the user.  False indicates that no field/config was 
+        provided for the property in question.
+
+        Basically, if no static value is provided, and no field value is provided
+        then that field was left blank, and we return false.
+        '''
+        return (self._data.get(property, None) is None and
+                self.iterable_fields.get(property, None) is None)
+
     def next(self):
         if self.stopIteration:
             raise StopIteration()

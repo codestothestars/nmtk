@@ -159,7 +159,7 @@ MAP
     
 
        TOLERANCE 4
-       TRANSPARENCY ALPHA
+       #TRANSPARENCY ALPHA
        TEMPLATE "results.html"
     {% else %}
        PROCESSING "BANDS={{band}}"
@@ -246,7 +246,7 @@ MAP
     PROJECTION
       "init=epsg:4326"
     END
-    TRANSPARENCY ALPHA
+    #TRANSPARENCY ALPHA
     CLASS
       NAME "Selected Results"
       STYLE
@@ -285,7 +285,7 @@ MAP
     PROJECTION
       "init=epsg:4326"
     END
-    TRANSPARENCY ALPHA
+    #TRANSPARENCY ALPHA
     CLASS
       NAME "Selected Results"
       STYLE
