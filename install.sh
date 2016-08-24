@@ -211,8 +211,8 @@ EOF
 
 BASEDIR=$(dirname $0)
 CELERYD_NAME=${NMTK_NAME}
+sudo systemctl stop $CELERYD_NAME
 if [[ -f /var/run/celery/$CELERYD_NAME.pid ]]; then
-   kill -0 $(cat /var/run/celery/$CELERYD_NAME.pid) 2> /dev/null
    if [ $? == 0 ]; then 
      echo -n "Stopping the celery daemon (this might take a few seconds)."
      sudo kill $(cat /var/run/celery/$CELERYD_NAME.pid)
