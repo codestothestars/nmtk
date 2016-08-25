@@ -76,8 +76,14 @@ class ConfigIterator(object):
         Basically, if no static value is provided, and no field value is provided
         then that field was left blank, and we return false.
         '''
-        return (self._data.get(property, None) is None and
-                self.iterable_fields.get(property, None) is None)
+        logger.error('Looking for %s, tests are %s and %s: %s', property,
+                     self._data.get(property, None),
+                     self.iterable_fields.get(property, None),
+                     (self._data.get(property, None) is not None or
+                      self.iterable_fields.get(property, None) is not None)
+                     )
+        return (self._data.get(property, None) is not None or
+                self.iterable_fields.get(property, None) is not None)
 
     def next(self):
         if self.stopIteration:
