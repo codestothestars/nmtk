@@ -70,10 +70,32 @@ define(['underscore',
 	         * and false if it should be displayed.
 	         */
 			$scope.hideField=function (namespace, property) {
+				
+				if (_.isString(property)) {
+					var ns_config=_.find($scope.tool_data.config.input, function (i){
+						return (i.namespace=namespace);
+					});
+					if (ns_config) {
+						property=_.find(ns_config.elements, function (elem) {
+							return (elem.name == property);
+						});
+						if (! property) {
+							return false;
+						}
+					} else {
+						return false;
+					}
+				}
 				if ($scope.validation[namespace][property.name].hidden) {
 					return true;
 				}
 				if (! _.isUndefined(property.display_if_true)) {
+					
+					// If the parent field is not visible, then we will not
+					// display this field either.
+//					if ($scope.hideField(namespace, property.display_if_true)) {
+//						return true;
+//					}
 					if (_.isUndefined($scope.job_config[namespace])) {
 						return false;
 					}
@@ -86,9 +108,15 @@ define(['underscore',
 					}
 				}
 				if (! _.isUndefined(property.display_if_filled)) {
+					$log.info('Display if filled is there for', property.name, namespace);
 					if (_.isUndefined($scope.job_config[namespace])) {
 						return false;
 					}
+					// If the parent field is not visible, then we will not
+					// display this field either.
+//					if ($scope.hideField(namespace, property.display_if_filled)) {
+//						return true;
+//					}
 					if (! _.isUndefined($scope.job_config[namespace][property.display_if_filled])) {
 						if (!_.isUndefined($scope.job_config[namespace][property.display_if_filled].value) && 
                                                     String($scope.job_config[namespace][property.display_if_filled].value).length) {
