@@ -288,8 +288,6 @@ if [[ ${SERVER_ENABLED} == 1 ]]; then
   if [[ $PRODUCTION == 1 ]]; then
     python manage.py minify
   fi
-  echo "Regenerating images for color ramps"
-  python manage.py refresh_colorramps
 fi
 
 
@@ -313,6 +311,10 @@ if [[ $WINDOWS == 0 ]]; then
   sudo a2dissite 000-default.conf &> /dev/null
   sudo /etc/init.d/apache2 restart
   sudo /etc/init.d/celeryd-$CELERYD_NAME start
+  if [[ ${SERVER_ENABLED} == 1 ]]; then
+    echo "Regenerating images for color ramps"
+    python manage.py refresh_colorramps
+  fi
   
   echo "Adding the local tool server to the NMTK server [Note: this may take some time as the celery queue may be full]"
   $BASEDIR/venv/bin/python $BASEDIR/NMTK_apps/manage.py add_server $ADDITIONAL_ARGS -c $EMAIL --skip-email -U $NMTK_USERNAME -u ${TOOL_SERVER_URL} "${TOOL_SERVER_URL%/*}"|$BASEDIR/venv/bin/python $BASEDIR/NMTK_apps/manage.py add_nmtk_server
