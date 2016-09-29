@@ -38,10 +38,15 @@ import sys
 import time
 import urlparse
 import mimetypes
+import urllib3.contrib.pyopenssl
+import certifi
+import urllib3
+
 logger = logging.getLogger(__name__)
+urllib3.contrib.pyopenssl.inject_into_urllib3()
 
 # For older version of python disable the urllib3 warnings.
-if sys.version_info < (2, 7, 9):
+if sys.version_info < (2, 7, 13):
     from requests.packages import urllib3
     urllib3.disable_warnings()
 
