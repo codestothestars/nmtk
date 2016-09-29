@@ -4,6 +4,7 @@ anyjson==0.3.3
 BeautifulSoup==3.2.1
 billiard==3.3.0.23
 celery==3.1.23
+certifi==2016.9.26
 cffi==1.7.0
 cryptography==1.4
 csvkit==0.9.1
@@ -57,6 +58,7 @@ requests==2.10.0
 simplejson==3.8.2
 six==1.10.0
 SQLAlchemy==1.0.13
+urllib3==1.18
 vine==1.1.0
 xlrd==1.0.0
 xlwt==1.1.2

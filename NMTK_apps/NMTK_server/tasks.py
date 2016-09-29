@@ -36,6 +36,7 @@ import imp
 import datetime
 from django.contrib.gis.geos import GEOSGeometry
 from more_itertools import unique_everseen
+from NMTK_server.wms import legend
 import tempfile
 
 
@@ -262,7 +263,7 @@ def add_toolserver(name, url, username, remote_ip=None, contact=None, skip_email
 @task(ignore_resut=True)
 def email_tool_server_admin(toolserver):
     '''
-    Email the tool server administrator with the credentials to use/add for 
+    Email the tool server administrator with the credentials to use/add for
     the tool server.
     '''
     logger = email_tool_server_admin.get_logger()
@@ -300,7 +301,7 @@ def discover_tools(toolserver):
             url = "{0}{1}index".format(toolserver.server_url, append_slash)
             tool_list = requests.get(url, verify=toolserver.verify_ssl).json()
         logger.debug('Retrieved tool list of: %s', tool_list)
-    except Exception, e:
+    except Exception as e:
         logger.exception(
             'Failed to reach tool server to retrieve tools: %s', str(e))
         tool_list = []
@@ -446,7 +447,7 @@ def updateToolConfig(tool):
         tool.config_url, verify=tool.tool_server.verify_ssl)
     try:
         config = tool.toolconfig
-    except Exception, e:
+    except Exception as e:
         logger.info('No toolconfig exists yet: %s', e,
                     exc_info=logger.isEnabledFor(logging.DEBUG))
         config = models.ToolConfig(tool=tool)
@@ -573,7 +574,8 @@ def cleanup(dryrun=True):
                             expected_files.append('{}c'.format(v.path))
                             logger.debug('Added expected file: %sc', v.path)
     unexpected_files = []
-    for dir, subdirs, files in os.walk(models.NMTKDataFileSystemStorage.base_location):
+    for dir, subdirs, files in os.walk(
+            models.NMTKDataFileSystemStorage.base_location):
         for filen in files:
             target_file = os.path.join(dir, filen)
             if target_file not in expected_files:
@@ -748,7 +750,7 @@ def importDataFile(datafile, job_id=None):
                 loader.export_json(datafile.processed_file.path)
                 try:
                     generate_datamodel(datafile, loader, logger)
-                except Exception, e:
+                except Exception as e:
                     logger.error('Error generating data model: %s', e,
                                  exc_info=logger.isEnabledFor(logging.DEBUG))
                     raise e
@@ -895,3 +897,26 @@ def importDataFile(datafile, job_id=None):
     if job:
         job.save()
     datafile.save()
+
+
+@task(ignore_result=False)
+def refresh_colorramps(*args, **options):
+    logger = add_toolserver.get_logger()
+    from NMTK_server import models
+    ramps = dict((m.name, m) for m in models.MapColorStyle.objects.all())
+    formats = legend.LegendGenerator.supported_formats()
+    i = 0
+    for category, styles in formats:
+        for style in styles:
+            m = ramps.get(style, models.MapColorStyle())
+            m.name = style
+            m.description = '{0} color ramp style'.format(style)
+            m.category = category
+            # Only set this if we are populating from scratch
+            if not m.pk:
+                m.other_g = m.other_b = m.other_r = 0x94
+            # Our default style is HSV.
+            m.default = (style == 'hsv')
+            m.save()
+            i += 1
+    return i
