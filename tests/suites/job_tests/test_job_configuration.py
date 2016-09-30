@@ -217,7 +217,10 @@ users cannot download results.
         params = {'job': job_id,
                   'format': 'json',
                   'limit': 1}
-        steps = ['Parameter & data file validation complete.', 'Job Completed']
+        steps = [
+            'Parameter & data file validation complete.',
+            'Post processing results file(s)',
+            'Job Completed']
         prev_response = ''
         while time.time() < timeout:
             response = client.get(status_url, params=params)
@@ -234,7 +237,7 @@ users cannot download results.
                         steps.remove(json_data['objects'][0]['message'])
                     if json_data['objects'][0]['message'] == 'Job Completed':
                         break
-            time.sleep(1)
+            time.sleep(.1)
         self.assertEqual(len(steps), 0,
                          'Did not get expected message(s) %s' % (steps,))
 
