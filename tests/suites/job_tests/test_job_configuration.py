@@ -118,7 +118,8 @@ users cannot download results.
         # Get a list of all the Tool Resource URIs for Minnesota models,
         # since the test1.geojson file is a MN model-specific data file.
         for tool in tools:
-            if 'umn' in tool['name'].lower():
+            if 'umn' in tool[
+                    'name'].lower() and 'pedestrian' in tool['name'].lower():
                 tool_uri = tool['resource_uri']
                 break
         data = {'tool': client.neuter_url(tool_uri),
@@ -135,94 +136,78 @@ users cannot download results.
 
         # Now we have a job, let's get the form, generate the response, and
         # submit it back to the user.
-        payload = {"config": {"coefficients": {"Arterial_coeff": {"type": "number",
-                                                                  "value": 391.8},
-                                               "BusRoute_coeff": {"type": "number",
-                                                                  "value": 100.3},
-                                               "CBDdist_km_coeff": {"type": "number",
-                                                                    "value": -40.3},
-                                               "Collector_coeff": {"type": "number",
-                                                                   "value": 611.1},
-                                               "Crime_coeff": {"type": "number",
-                                                               "value": 2.9},
-                                               "EmployAccess_coeff": {"type": "number",
-                                                                      "value": 0},
-                                               "LUMix_coeff": {"type": "number",
-                                                               "value": -919.9},
-                                               "MedHHInc_coeff": {"type": "number",
-                                                                  "value": 2.1},
-                                               "OffstreetTrail_coeff": {"type": "number",
-                                                                        "value": 253.8},
-                                               "PDperkm2_coeff": {"type": "number",
-                                                                  "value": -0.035},
-                                               "PctU5_O65_coeff": {"type": "number",
-                                                                   "value": 32.5},
-                                               "Pctnonwhite_coeff": {"type": "number",
-                                                                     "value": -29.8},
-                                               "Pctw4ormore_coeff": {"type": "number",
-                                                                     "value": 371.4},
-                                               "Precip_coeff": {"type": "number",
-                                                                "value": -127.8},
-                                               "Principal_coeff": {"type": "number",
-                                                                   "value": 66.4},
-                                               "Tmax_coeff": {"type": "number",
-                                                              "value": -26},
-                                               "WatDist_km_coeff": {"type": "number",
-                                                                    "value": -21.6},
-                                               "Year_coeff": {"type": "number",
-                                                              "value": -5.9},
-                                               "constant": {"type": "number",
-                                                            "value": 788.6}
-                                               },
-                              "data": {"Arterial": {"type": "property",
-                                                    "value": "Arterial"},
-                                       "BusRoute": {"type": "property",
-                                                    "value": "BusRoute"},
-                                       "CBDdist_km": {"type": "property",
-                                                      "value": "CBDdist_km"},
-                                       "Collector": {"type": "property",
-                                                     "value": "Collector"},
-                                       "Crime": {"type": "property",
-                                                 "value": "Crime"},
-                                       "EmployAccess": {"type": "property",
-                                                        "value": "EmployAccess"},
-                                       "LUMix": {"type": "property",
-                                                 "value": "LUMix"},
-                                       "MedHHInc": {"type": "property",
-                                                    "value": "MedHHInc"},
-                                       "OffstreetTrail": {"type": "property",
-                                                          "value": "OffstreetTrail"},
-                                       "PDperkm2": {"type": "property",
-                                                    "value": "PDperkm2"},
-                                       "PctU5_O65": {"type": "property",
-                                                     "value": "PctU5_O65"},
-                                       "Pctnonwhite": {"type": "property",
-                                                       "value": "Pctnonwhite"},
-                                       "Pctw4ormore": {"type": "property",
-                                                       "value": "Pctw4ormore"},
-                                       "Principal": {"type": "property",
-                                                     "value": "Principal"},
-                                       "WatDist_km": {"type": "property",
-                                                      "value": "WatDist_km"}
-                                       },
-                              "results": {"result": {"type": "string",
-                                                     "value": "ped12ols"}
-                                          }
-                              },
-                   "file_config": {
-            "data": test_file
-        }
-        }
+        payload = {
+            'status': 'A',
+            "file_config": {
+                "data": test_file
+            },
+            "config": {'coefficients': {'Arterial_coeff': {'type': 'number',
+                                                           'value': 391.8},
+                                        'BusRoute_coeff': {'type': 'number',
+                                                           'value': 100.3},
+                                        'CBDdist_km_coeff': {'type': 'number',
+                                                             'value': -40.3},
+                                        'Collector_coeff': {'type': 'number',
+                                                            'value': 611.1},
+                                        'Crime_coeff': {'type': 'number', 'value': 2.9},
+                                        'EmployAccess_coeff': {'type': 'number',
+                                                               'value': 0},
+                                        'LUMix_coeff': {'type': 'number',
+                                                        'value': -919.9},
+                                        'MedHHInc_coeff': {'type': 'number',
+                                                           'value': 2.1},
+                                        'OffstreetTrail_coeff': {'type': 'number',
+                                                                 'value': 253.8},
+                                        'PDperkm2_coeff': {'type': 'number',
+                                                           'value': -0.035},
+                                        'PctU5_O65_coeff': {'type': 'number',
+                                                            'value': 32.5},
+                                        'Pctnonwhite_coeff': {'type': 'number',
+                                                              'value': -29.8},
+                                        'Pctw4ormore_coeff': {'type': 'number',
+                                                              'value': 371.4},
+                                        'Precip_coeff': {'type': 'number',
+                                                         'value': -127.8},
+                                        'Principal_coeff': {'type': 'number',
+                                                            'value': 66.4},
+                                        'Tmax_coeff': {'type': 'number', 'value': -26},
+                                        'WatDist_km_coeff': {'type': 'number',
+                                                             'value': -21.6},
+                                        'Year_coeff': {'type': 'number', 'value': -5.9},
+                                        'constant': {'type': 'number', 'value': 788.6}},
+                       'data': {'Arterial': {'type': 'property', 'value': 'Arterial'},
+                                'BusRoute': {'type': 'property', 'value': 'BusRoute'},
+                                'CBDdist_km': {'type': 'property',
+                                               'value': 'CBDdist_km'},
+                                'Collector': {'type': 'property', 'value': 'Collector'},
+                                'Crime': {'type': 'property', 'value': 'Crime'},
+                                'EmployAccess': {'type': 'property',
+                                                 'value': 'EmployAccess'},
+                                'LUMix': {'type': 'property', 'value': 'LUMix'},
+                                'MedHHInc': {'type': 'property', 'value': 'MedHHInc'},
+                                'OffstreetTrail': {'type': 'property',
+                                                   'value': 'OffstreetTrail'},
+                                'PDperkm2': {'type': 'property', 'value': 'PDperkm2'},
+                                'PctU5_O65': {'type': 'property', 'value': 'PctU5_O65'},
+                                'Pctnonwhite': {'type': 'property',
+                                                'value': 'Pctnonwhite'},
+                                'Pctw4ormore': {'type': 'property',
+                                                'value': 'Pctw4ormore'},
+                                'Principal': {'type': 'property', 'value': 'Principal'},
+                                'WatDist_km': {'type': 'property',
+                                               'value': 'WatDist_km'}},
+                       'results': {'result': {'type': 'string', 'value': 'ped12ols'}}}}
         data = client.get(job_uri,
                           params={'format': 'json'}).json()
         data.update(payload)
+        logger.debug('Payload is now %s', data)
         job_id = data['id']
 
         response = client.put(job_uri,
                               headers={'Content-Type': 'application/json', },
                               data=json.dumps(data))
         logger.debug('Response from job update was %s', response.text)
-        self.assertTrue(response.status_code in (204, 202),
+        self.assertTrue(response.status_code in (200, 204, 202),
                         'Expected a return code of 204/202 with valid ' +
                         'data provided got (%s)' % (response.status_code))
 
@@ -232,7 +217,7 @@ users cannot download results.
         params = {'job': job_id,
                   'format': 'json',
                   'limit': 1}
-        steps = ['Parameter & data file validation complete.', 'COMPLETE']
+        steps = ['Parameter & data file validation complete.', 'Job Completed']
         prev_response = ''
         while time.time() < timeout:
             response = client.get(status_url, params=params)
@@ -240,15 +225,16 @@ users cannot download results.
                              'Expected to get valid response back')
             if len(response.text):
                 json_data = response.json()
+                logger.debug('Output was %s', json_data)
                 if prev_response != response.text:
                     logger.debug('Reponse changed to %s', response.text)
                 prev_response = response.text
                 if json_data['meta']['total_count']:
                     if json_data['objects'][0]['message'] in steps:
                         steps.remove(json_data['objects'][0]['message'])
-                    if json_data['objects'][0]['message'] == 'COMPLETE':
+                    if json_data['objects'][0]['message'] == 'Job Completed':
                         break
-            time.sleep(.1)
+            time.sleep(1)
         self.assertEqual(len(steps), 0,
                          'Did not get expected message(s) %s' % (steps,))
 
