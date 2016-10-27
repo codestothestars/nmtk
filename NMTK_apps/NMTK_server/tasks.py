@@ -808,13 +808,14 @@ def importDataFile(datafile, job_id=None):
                                 field_attributes[db_column][
                                     'units'] = job_config_field_units[db_column]
                             if field_attributes[db_column]['distinct'] < 10:
-                                distinct_values = list(
+                                distinct_values = [v for v in  
                                     qs.order_by().values_list(
-                                        field_name, flat=True).distinct())
+                                        field_name, flat=True).distinct() if v is not None]
                                 if not caster:
                                     field_attributes[db_column][
                                         'values'] = distinct_values
                                 else:
+                                    logger.info('Attempting to cast values: %s', distinct_values)
                                     field_attributes[db_column][
                                         'values'] = map(caster, distinct_values)
                             else:
