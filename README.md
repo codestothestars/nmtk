@@ -69,7 +69,7 @@ visible incompatibility, but may fail in certain use cases.
 - Spatialite 3 or later
 - mod_wsgi 3.3 or later
 - Python 2.7 or later
-- PostgreSQL 9.3 or later
+- PostgreSQL 9.4 or later
 
 Note that many of the python components installed in the Virtual Environment
 specify required version information, for that reason they are not listed here.

@@ -179,7 +179,7 @@ class UserResource(ModelResource):
         authentication = SessionAuthentication()
         authorization = UserResourceAuthorization()
         validation = UserResourceValidation()
-        allowed_methods = ['get', 'put', 'post']
+        allowed_methods = ['get', 'put', 'post', 'delete']
         excludes = ('password', 'groups',)
         filtering = {'username': ALL,
                      'email': ALL}
@@ -327,7 +327,8 @@ class FeedbackResourceAuthorization(Authorization):
         if bundle.request.user.is_staff or bundle.request.user.is_superuser:
             return object_list
         else:
-            return [row for row in object_list if row.user == bundle.request.user]
+            return [
+                row for row in object_list if row.user == bundle.request.user]
 
     def read_detail(self, object_list, bundle):
         '''
@@ -451,7 +452,8 @@ class UserPreferenceAuthorization(Authorization):
         can be created.  In our case, we only allow this record to be created
         when the user is an admin user.
         '''
-        return (models.UserPreference.objects.filter(user=bundle.request.user).count() == 0)
+        return (models.UserPreference.objects.filter(
+            user=bundle.request.user).count() == 0)
 
 
 class UserPreference(ModelResource):
@@ -881,7 +883,7 @@ class ToolResourceAuthorization(Authorization):
 
     def read_list(self, object_list, bundle):
         '''
-        Ensure that users can see tools if there is either no list of 
+        Ensure that users can see tools if there is either no list of
         authorized_users, or if the user is in the list of users.
         '''
         if bundle.request.user.is_superuser:
@@ -893,7 +895,7 @@ class ToolResourceAuthorization(Authorization):
 
     def read_detail(self, object_list, bundle):
         '''
-        Ensure that users can see tools if there is either no list of 
+        Ensure that users can see tools if there is either no list of
         authorized_users, or if the user is in the list of users.
         '''
         if bundle.request.user.is_superuser:
@@ -1213,6 +1215,7 @@ class JobResourceValidation(Validation):
                     file_config=bundle.data['file_config'])
                 # Remove any job files from a previous save
                 bundle.obj.jobfile_set.all().delete()
+                logger.debug('Checking for validity of job data')
                 if validator.is_valid():
                     # Returns a valid tool config.
                     bundle.obj.config = validator.genToolConfig()

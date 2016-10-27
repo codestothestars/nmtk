@@ -49,7 +49,7 @@ class TestLoginAndLogout(NMTKTestCase):
         client = self.getClient()
         result = client.login(self.username, self.password)
         # Verify that we logged in successfully by checking the status code
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 200)
 
     def test_logout_verify(self):
         '''
@@ -64,7 +64,7 @@ class TestLoginAndLogout(NMTKTestCase):
         test_url = '%s%s' % (client.getURL('api'),
                              'job/')
         result = client.login(self.username, self.password)
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 200)
         result = client.get(test_url, params={'format': 'json'})
         self.assertEqual(result.status_code, 200)
         result = client.logout()

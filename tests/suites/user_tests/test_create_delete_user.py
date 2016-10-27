@@ -123,10 +123,10 @@ class TestAPIUserManagement(NMTKTestCase):
         client = self.getClient()
         response = client.login(username, password)
         logger.debug('Response from login was %s', response.status_code)
-        self.assertEqual(response.status_code, 302,
-                         'Login did not produce expected redirect')
-        self.assertTrue(len(response.headers.get('location')),
-                        'Redirect location header expected, not provided')
+        self.assertEqual(response.status_code, 200,
+                         'Login produced unexpected result')
+#         self.assertTrue(len(response.headers.get('location')),
+#                         'Redirect location header expected, not provided')
         response = client.get(client.getURL(path=''),
                               allow_redirects=False)
         self.assertEqual(200, response.status_code,
@@ -146,7 +146,7 @@ class TestAPIUserManagement(NMTKTestCase):
         # Try to login again as the disabled user:
         client = self.getClient()
         response = client.login(username, password)
-        self.assertEqual(200, response.status_code,
+        self.assertEqual(401, response.status_code,
                          'Login for deleted user should fail')
 
         response = client.get(client.getURL(path=self.protected_url),
@@ -191,8 +191,8 @@ class TestAPIUserManagement(NMTKTestCase):
         response = client_a.login(username, client_data['password'])
         self.assertEqual(
             response.status_code,
-            200,
-            'Redirect not expected after unsuccessful login (pw not changed)')
+            401,
+            'Success not expected after unsuccessful login (pw not changed)')
 
         # user changes his own password, but supplys bad old password
         client_data['current_password'] = '%s_1' % (password,)
@@ -205,7 +205,7 @@ class TestAPIUserManagement(NMTKTestCase):
         response = client_a.login(username, client_data['password'])
         self.assertEqual(
             response.status_code,
-            200,
+            401,
             'Redirect not expected after unsuccessful login (pw not changed)')
 
         # user changes his own password, but fails to supply old password
@@ -215,12 +215,12 @@ class TestAPIUserManagement(NMTKTestCase):
         # login with new password
         client_a = self.getClient()
         response = client_a.login(username, client_data['password'])
-        self.assertEqual(response.status_code, 302,
+        self.assertEqual(response.status_code, 200,
                          'Redirect expected after successful login')
 
         # Verify old password no longer works
         response = client_a.login(username, password)
-        self.assertEqual(response.status_code, 200,
+        self.assertEqual(response.status_code, 401,
                          'Redirect not expected after login ' +
                          'attempt with old password')
 
@@ -236,7 +236,7 @@ class TestAPIUserManagement(NMTKTestCase):
 
         # Verify old password still works
         response = client_a.login(username2, password2)
-        self.assertEqual(response.status_code, 302,
+        self.assertEqual(response.status_code, 200,
                          'Redirect expected after login ' +
                          'attempt with original password')
 
@@ -253,19 +253,19 @@ class TestAPIUserManagement(NMTKTestCase):
             'Response from put was %s: %s',
             response.status_code,
             response.text)
-        self.assertTrue(response.status_code in (202, 204),
+        self.assertTrue(response.status_code in (200, 202, 204),
                         'Expected to get a 204 when a ' +
                         'superuser tries to change another users password')
 
         # Verify password change worked
         client2_a = self.getClient()
         response = client2_a.login(username2, password)
-        self.assertEqual(response.status_code, 302,
+        self.assertEqual(response.status_code, 200,
                          'Redirect expected after successful login')
 
         # Verify old password no longer works
         response = client2_a.login(username2, password2)
-        self.assertEqual(response.status_code, 200,
+        self.assertEqual(response.status_code, 401,
                          'Redirect not expected after login ' +
                          'attempt with old password')
 

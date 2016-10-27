@@ -476,7 +476,7 @@ class Job(models.Model):
         (it should use _state.adding instead.)  We work around that here by
         detecting when a save hasn't happened and setting the uuid.
         '''
-        logger.debug('Saving!?')
+        logger.debug('Saving!?, status is %s', self.status)
         if (not self.pk):
             self.pk = uuid.uuid4()
         result = super(Job, self).save(*args, **kwargs)
@@ -559,7 +559,7 @@ def data_file_model_path(instance, filename):
     Django 1.8 migrations can't serialize lambdas, so we move what (was) a lambda
     to outside the class body and make it a function
 
-    Note that to prevent a name of .py.py we don't auto-append a .py to the 
+    Note that to prevent a name of .py.py we don't auto-append a .py to the
     model file.
     '''
     return '%s/data_files/%s' % (instance.user.pk, filename,)
