@@ -559,7 +559,7 @@ class DataFileResourceAuthorization(Authorization):
         '''
         if bundle.request.user.is_superuser:
             return True
-        elif bundle.obj.pk == bundle.request.user.pk:
+        elif bundle.obj.user == bundle.request.user:
             return True
 
         raise Unauthorized('You lack the privilege to access this resource')
