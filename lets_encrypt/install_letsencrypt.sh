@@ -46,6 +46,11 @@
    
    cp "${DOMAIN_KEY}" "${CERTIFICATE_KEY}"
    
+   # Ensure that scripts cannot read the key.
+   sudo chown root "${CERTIFICATE_KEY}"
+   
+   
+   
    if [ -f "${DOMAIN_CSR}" ]; then
      echo "Using existing domain CSR (presumably for ${HOSTN})"
    else 
@@ -74,4 +79,18 @@
   
   # Now generate the certificate.
   bash ${NMTK_INSTALL_PATH}/lets_encrypt/renew_cert.sh
+  
+  
+  # Now install the cron job to renew.
+  
+  for FILE in "cert_renewal_letsencrypt.cron"; do
+    DEST_FILENAME="/etc/cron.d/$(basename ${FILE%.cron})_${NMTK_NAME}"
+    sudo -s -- <<EOF
+    sed -e 's|NMTK_INSTALL_PATH|'${NMTK_INSTALL_PATH}'|g' \
+        -e 's|NMTK_NAME|'${NMTK_NAME}'|g' \
+        $FILE > $DEST_FILENAME
+EOF
+    echo "Created new cron job for $(basename $FILE)"
+  done
+  
    

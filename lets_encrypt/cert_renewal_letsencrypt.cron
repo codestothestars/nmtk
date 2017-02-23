@@ -1,0 +1,11 @@
+# Small cron job to handling the renewal of SSL Certificates
+# using lets encrypt.  Runs once/month
+# this file should be updated with the appropriate (NMTK_INSTALL_PATH) and copied to
+# /etc/cron.d
+
+# This cron job will verify that celery is working properly
+BASE_DIR=NMTK_INSTALL_PATH
+
+SHELL=/bin/bash
+
+0 0 1 * * www-data $BASE_DIR/lets_encrypt/renew_cert.sh 2>> $BASE_DIR/logs/acme-tiny-renew.log
