@@ -127,7 +127,8 @@ TEMPLATES = [
         'DIRS': [
             # This directory adds the templates that are stored in the NMTK_apps directory,
             # Which is not an app - but the underpinnings for everything else.
-            os.path.join(BASE_PATH, 'templates'), ],
+            os.path.join(BASE_PATH, 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -147,6 +148,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -191,6 +193,11 @@ if NMTK_SERVER:
                                        'NMTK_server',  # The NMTK Server
                                        'django.contrib.admin',
                                        )
+    if os.path.exists(os.path.join(BASE_PATH, '../NMTK_server/templates')):
+        TEMPLATES[0]['DIRS'].append(
+            os.path.join(
+                BASE_PATH,
+                '../NMTK_server/templates'))
 
 # The test tool only gets installed if debug is set to true.
 # if not PRODUCTION and TOOL_SERVER:
