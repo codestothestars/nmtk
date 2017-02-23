@@ -35,3 +35,4 @@ packages/
 # Ignore any key files
 conf/*.key
 lets_encrypt/*.key
+lets_encrypt/*.csr
