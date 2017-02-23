@@ -45,6 +45,8 @@ EOF
 }
 
 
+
+
 cat <<-EOT
 	NOTICE: This script will cause the removal of all data, accounts, etc. 
 	        stored on this server.  For a new installation, it is acceptable
@@ -80,6 +82,15 @@ if [ -f ./.nmtk_config ]; then
   source ./.nmtk_config
 fi
 SELF_SIGNED_CERT=$(venv/bin/python NMTK_apps/manage.py query_settings --self-signed-cert)
+if [[ "${SELF_SIGNED_CERT}" == 1 ]]; then
+  echo "You're using self signed certificates - which is fine if you access the"
+  echo "server via IP address.  However if you have a host name, it is strongly"
+  echo "recommended that you use Let's Encrypt and disable self signed certificates."
+  echo -n "Press control-c to abort and disable self-signed support or enter to continue"
+  read
+fi
+
+
 SSL=$(venv/bin/python NMTK_apps/manage.py query_settings --ssl)
 if [ ${#HOSTN} == 0 ]; then
   read -p "URL Hostname (press enter for ${HOSTN:=$HOSTNAME}): " HOSTN 
@@ -96,6 +107,18 @@ if [ ${#SSL} == 0 ]; then
     SSL=1
   fi
 fi
+
+if [[ ${#LETSENCRYPT} == 0 && ${SSL} == 1 ]]; then
+  echo "You have SSL Enabled, do you wish to use Let's Encrypt to generate certificates (y/N) ?"
+  read ANSWER
+  if [[ "${ANSWER}" != 'Y' && "${ANSWER}" != 'y' ]]; then
+    LETSENCRYPT=0
+  else
+    LETSENCRYPT=1
+  fi
+fi
+
+
 HTTP='http'
 if [[ ${SSL} != 0 ]]; then
   HTTP='https'
@@ -154,6 +177,7 @@ if [ ${#PGPASSWORD} == 0 ]; then
   echo ""
 fi
 
+
 # This is the secret used in the local_settings.py file, we need to ensure
 # we don't change it, otherwise users will have to shift-reload to get a new
 # CSRF token.
@@ -176,9 +200,19 @@ export FIRSTNAME LASTNAME PASSWORD EMAIL NMTK_USERNAME NMTK_NAME URL PGUSER PGPA
 	PGUSER=${PGUSER}
 	HOSTN=${HOSTN}
 	SECRET=${SECRET}
+	LETSENCRYPT=${LETSENCRYPT}
 EOT
 
 if [[ $WINDOWS == 0 ]]; then
+
+if [[ ${LETSENCRYPT} == 1 ]]; then
+  if [ ! -f "/etc/apache2/sites-available/${NMTK_NAME}.conf" ]; then
+     echo "Disabling current site in order to configure encryption"
+     sudo a2dissite ${NMTK_NAME}.conf
+  fi
+  bash lets_encrypt/install_letsencrypt.sh $NMTK_INSTALL_PATH $NMTK_NAME $HOSTN
+fi
+
 sudo -s -- <<EOF
 # Install the celery startup scripts
 #if [ ! -f "/etc/default/celeryd-${NMTK_NAME}" ]; then
@@ -200,9 +234,10 @@ sudo -s -- <<EOF
     conf/${CONF_FILE} > /etc/apache2/sites-available/${NMTK_NAME}.conf
   # In the case of a self-signed certificate, we need to remove the chain
   # file information from the config file.
-  if [[ "${SELF_SIGNED_CERT}" == 1 ]]; then
+  if [[ "${SELF_SIGNED_CERT}" == 1 && ${LETSENCRYPT} == 0 ]]; then
     sed -i '/SSLCertificateChainFile.*$/d' /etc/apache2/sites-available/${NMTK_NAME}.conf
     echo "You are using a self signed cert, you probably 'ought to run conf/autogen.sh"
+    echo "Or better yet, why not try the Let's Encrypt setting?"
   fi
   a2ensite ${NMTK_NAME}.conf
 #fi
@@ -313,7 +348,7 @@ if [[ $WINDOWS == 0 ]]; then
   sudo /etc/init.d/celeryd-$CELERYD_NAME start
   if [[ ${SERVER_ENABLED} == 1 ]]; then
     echo "Regenerating images for color ramps"
-    python manage.py refresh_colorramps
+    $BASEDIR/venv/bin/python $BASEDIR/NMTK_apps/manage.py refresh_colorramps
   fi
   
   echo "Adding the local tool server to the NMTK server [Note: this may take some time as the celery queue may be full]"

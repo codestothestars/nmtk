@@ -31,3 +31,7 @@ node/*
 
 # Ignore any packages specific to the windows install
 packages/
+
+# Ignore any key files
+conf/*.key
+lets_encrypt/*.key
