@@ -24,7 +24,7 @@ python "${LEDIR}/acme-tiny/acme_tiny.py" \
 wget -O - https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem > ${LEDIR}/intermediate.pem
 cat "${CERTIFICATE_FILE}" ${LEDIR}/intermediate.pem > "${CERTIFICATE_CHAIN}"
 rm -f ${LEDIR}/intermediate.pem
-if [[ ${USER} != "www-data" ]; then
+if [[ ${USER} != "www-data" ]]; then
   sudo chown www-data "${CERTIFICATE_CHAIN}" "${CERTIFICATE_FILE}"
 fi
 service apache2 reload
