@@ -76,7 +76,11 @@
   
   sudo /etc/init.d/apache2 restart
   popd &> /dev/null 
-  
+ 
+  # Copy over the sudoers file so that the www-data user can restart
+  # apache in renew_cert.sh (no root needed.)
+  sudo cp apache-reload.sudoers /etc/sudoers.d/apache-reload-letsencrypt
+ 
   # Now generate the certificate.
   bash ${NMTK_INSTALL_PATH}/lets_encrypt/renew_cert.sh
   
@@ -93,4 +97,3 @@ EOF
     echo "Created new cron job for $(basename $FILE)"
   done
   
-   

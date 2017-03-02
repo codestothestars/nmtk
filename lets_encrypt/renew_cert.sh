@@ -27,4 +27,4 @@ rm -f ${LEDIR}/intermediate.pem
 if [[ ${USER} != "www-data" ]]; then
   sudo chown www-data "${CERTIFICATE_CHAIN}" "${CERTIFICATE_FILE}"
 fi
-service apache2 reload
+sudo /bin/systemctl reload apache2

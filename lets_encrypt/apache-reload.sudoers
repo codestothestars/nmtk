@@ -1,0 +1,5 @@
+# NMTK uses lets encrypt for auto-cert generation, this requires
+# a restart of apache when we get new certificates, which happens
+# roughly once a month.  This entry allows the www-data user to
+# use the systemctl command as root to reload the apache2 config
+www-data ALL=NOPASSWD: /bin/systemctl reload apache2
