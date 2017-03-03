@@ -79,7 +79,7 @@
  
   # Copy over the sudoers file so that the www-data user can restart
   # apache in renew_cert.sh (no root needed.)
-  sudo cp apache-reload.sudoers /etc/sudoers.d/apache-reload-letsencrypt
+  sudo cp ${LEDIR}/apache-reload.sudoers /etc/sudoers.d/apache-reload-letsencrypt
  
   # Now generate the certificate.
   bash ${NMTK_INSTALL_PATH}/lets_encrypt/renew_cert.sh
