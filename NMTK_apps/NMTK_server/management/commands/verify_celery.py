@@ -21,7 +21,7 @@ class Command(BaseCommand):
                             default=False,
                             help='Email the admins on error..')
         parser.add_argument('--timeout',
-                            type='int',
+                            type=int,
                             action='store',
                             dest='timeout',
                             default=600,
