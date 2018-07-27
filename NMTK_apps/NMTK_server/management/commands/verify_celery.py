@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand, CommandError
-from optparse import make_option
 import datetime
 from NMTK_server import tasks
 from django.conf import settings
