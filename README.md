@@ -391,7 +391,7 @@ set of applications, and the NMTK Server components reside in another set.)
        * Copy the celeryd-nmtk.init script to /etc/init.d/celeryd-nmtk
        * Use the appropriate linux commands to ensure that the celery daemon
          is started when the server boots (sudo update-rc.d celeryd-nmtk
-         defaults)
+         defaults). This creates a global service named `celeryd-nmtk`.
 
  2.  By default, files for the NMTK server will go in the nmtk_files subdirectory,
      create this directory if it does not exist, and ensure that you have write
