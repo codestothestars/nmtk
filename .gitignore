@@ -37,3 +37,6 @@ conf/*.key
 lets_encrypt/*.key
 lets_encrypt/*.csr
 lets_encrypty/acme-tiny
+
+# Ignore Visual Studio Code workspace directory
+.vscode
